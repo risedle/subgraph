@@ -1,0 +1,19 @@
+{
+  "name": "risedle-dashboard",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ dimasriat/risedle-dashboard",
+    "create-local": "graph create --node http://localhost:8020/ dimasriat/risedle-dashboard",
+    "remove-local": "graph remove --node http://localhost:8020/ dimasriat/risedle-dashboard",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 dimasriat/risedle-dashboard"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.30.3",
+    "@graphprotocol/graph-ts": "0.27.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.6.2"
+  }
+}
