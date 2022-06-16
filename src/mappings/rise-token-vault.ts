@@ -1,3 +1,4 @@
+import { Bytes } from "@graphprotocol/graph-ts";
 import {
 	RiseTokenBurned,
 	RiseTokenCreated,
@@ -14,6 +15,12 @@ import {
 	RiseToken,
 	Withdraw,
 } from "../types/schema";
+import {
+	convertEthToDecimal,
+	getRiseTokenByEvent,
+	getTransactionByEvent,
+	getUserByEvent,
+} from "./helpers";
 
 export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 	let riseToken = RiseToken.load(event.transaction.hash.toHex());
@@ -33,20 +40,29 @@ export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 }
 
 export function handleRiseTokenMinted(event: RiseTokenMinted): void {
-	let mint = Mint.load(event.transaction.hash.toHex());
-	if (!mint) {
-		mint = new Mint(event.transaction.hash.toHex());
-	}
-	/** @var {Mint} */
-	// mint.transaction;
-	// mint.timestamp;
-	// mint.token;
-	// mint.to;
-	// mint.liquidity;
-	// mint.sender;
-	// mint.mintedAmount;
-	// mint.amountUSD;
+	const tx = getTransactionByEvent(event);
+	const user = getUserByEvent(event);
+	const riseToken = getRiseTokenByEvent(event);
+
+	riseToken.save();
+
+	const mint = new Mint(tx.id);
+	mint.transaction = tx.id;
+	mint.timestamp = tx.timestamp;
+	mint.token = riseToken.id;
+	mint.to = Bytes.fromHexString(event.transaction.to?.toHexString() ?? "0");
+	mint.sender = user.id;
+	mint.mintedAmount = convertEthToDecimal(
+		(event as RiseTokenMinted).params.mintedAmount
+	);
+	// mint.amountUSD; --> TODO: cari nav
 	mint.save();
+
+	tx.mints = tx.mints ? tx.mints.concat([mint.id]) : [];
+	tx.save();
+
+	user.mints = user.mints ? user.mints.concat([mint.id]) : [];
+	user.save();
 }
 
 export function handleRiseTokenBurned(event: RiseTokenBurned): void {
