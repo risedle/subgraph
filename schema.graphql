@@ -48,7 +48,6 @@ type Mint @entity {
 
   # populated from the primary Transfer event
   to: Bytes!
-  liquidity: BigDecimal!
 
   # populated from the RiseTokenMinted event
   sender:  User!
