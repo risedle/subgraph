@@ -145,18 +145,35 @@ export function handleSupplyAdded(event: SupplyAdded): void {
 }
 
 export function handleSupplyRemoved(event: SupplyRemoved): void {
-	let withdraw = Withdraw.load(event.transaction.hash.toHex());
-	if (!withdraw) {
-		withdraw = new Withdraw(event.transaction.hash.toHex());
+	let user = User.load(event.params.account.toHex());
+	if (user == null) {
+		user = new User(event.params.account.toHex());
 	}
-	/** @var {Withdraw} */
-	// withdraw.transaction;
-	// withdraw.timestamp;
-	// withdraw.tokenOut;
-	// withdraw.sender;
-	// withdraw.rvTokenAmount;
-	// withdraw.exchangeRate;
-	// withdraw.tokenOutAmount;
-	// withdraw.amountUSD;
+	user.save();
+
+	let transaction = Transaction.load(event.transaction.hash.toHex());
+	if (transaction == null) {
+		transaction = new Transaction(event.transaction.hash.toHex());
+		transaction.timestamp = event.block.timestamp;
+		transaction.blockNumber = event.block.number;
+	}
+	transaction.save();
+
+	let withdraw = Withdraw.load(event.transaction.hash.toHex());
+	if (withdraw == null) {
+		withdraw = new Withdraw(event.transaction.hash.toHex());
+		withdraw.transaction = transaction.id;
+		withdraw.timestamp = event.block.timestamp;
+		withdraw.tokenOut = Bytes.fromHexString(
+			"0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+		); // USDC in arbitrum
+		withdraw.sender = user.id;
+	}
+	withdraw.rvTokenAmount = convertEthToDecimal(event.params.amount);
+	withdraw.exchangeRate = convertEthToDecimal(
+		event.params.ExchangeRateInEther
+	);
+	withdraw.tokenOutAmount = convertEthToDecimal(event.params.redeemedAmount);
+	withdraw.amountUSD = BigDecimal.fromString("0"); // Dummy
 	withdraw.save();
 }
