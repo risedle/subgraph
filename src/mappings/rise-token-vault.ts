@@ -93,10 +93,22 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 }
 
 export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
-	let rebalance = Rebalance.load(event.transaction.hash.toHex());
-	if (!rebalance) {
-		rebalance = new Rebalance(event.transaction.hash.toHex());
+	let transaction = Transaction.load(event.transaction.hash.toHex());
+	if (transaction == null) {
+		transaction = new Transaction(event.transaction.hash.toHex());
+		transaction.timestamp = event.block.timestamp;
+		transaction.blockNumber = event.block.number;
 	}
+	transaction.save();
+
+	let rebalance = Rebalance.load(event.transaction.hash.toHex());
+	if (rebalance == null) {
+		rebalance = new Rebalance(event.transaction.hash.toHex());
+		rebalance.transaction = transaction.id;
+		rebalance.timestamp = event.block.timestamp;
+		rebalance.token = "0x46D06cf8052eA6FdbF71736AF33eD23686eA1452"; // ETHRISE in Arbitrum
+	}
+	rebalance.executor = event.params.executor;
 	/** @var {Rebalance} */
 	// rebalance.transaction;
 	// rebalance.timestamp;
