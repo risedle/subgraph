@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
 	RiseTokenBurned,
 	RiseTokenCreated,
@@ -115,17 +115,32 @@ export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
 }
 
 export function handleSupplyAdded(event: SupplyAdded): void {
-	let deposit = Deposit.load(event.transaction.hash.toHex());
-	if (!deposit) {
-		deposit = new Deposit(event.transaction.hash.toHex());
+	let user = User.load(event.params.account.toHex());
+	if (user == null) {
+		user = new User(event.params.account.toHex());
 	}
-	/** @var {Deposit} */
-	// deposit.transaction;
-	// deposit.timestamp;
-	// deposit.tokenIn;
-	// deposit.sender;
-	// deposit.mintedAmount;
-	// deposit.amountUSD;
+	user.save();
+
+	let transaction = Transaction.load(event.transaction.hash.toHex());
+	if (transaction == null) {
+		transaction = new Transaction(event.transaction.hash.toHex());
+		transaction.timestamp = event.block.timestamp;
+		transaction.blockNumber = event.block.number;
+	}
+	transaction.save();
+
+	let deposit = Deposit.load(event.transaction.hash.toHex());
+	if (deposit == null) {
+		deposit = new Deposit(event.transaction.hash.toHex());
+		deposit.transaction = transaction.id;
+		deposit.timestamp = event.block.timestamp;
+		deposit.tokenIn = Bytes.fromHexString(
+			"0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+		); // USDC in arbitrum
+		deposit.sender = user.id;
+	}
+	deposit.mintedAmount = convertEthToDecimal(event.params.mintedAmount);
+	deposit.amountUSD = BigDecimal.fromString("0"); // Dummy
 	deposit.save();
 }
 
