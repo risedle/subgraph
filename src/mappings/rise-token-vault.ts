@@ -65,17 +65,30 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 }
 
 export function handleRiseTokenBurned(event: RiseTokenBurned): void {
-	let burn = Burn.load(event.transaction.hash.toHex());
-	if (!burn) {
-		burn = new Burn(event.transaction.hash.toHex());
+	let user = User.load(event.params.user.toHex());
+	if (user == null) {
+		user = new User(event.params.user.toHex());
 	}
-	/** @var {Burn} */
-	// burn.transaction;
-	// burn.timestamp;
-	// burn.token;
-	// burn.sender;
-	// burn.burnedAmount;
-	// burn.amountUSD;
+	user.save();
+
+	let transaction = Transaction.load(event.transaction.hash.toHex());
+	if (transaction == null) {
+		transaction = new Transaction(event.transaction.hash.toHex());
+		transaction.timestamp = event.block.timestamp;
+		transaction.blockNumber = event.block.number;
+	}
+	transaction.save();
+
+	let burn = Burn.load(event.transaction.hash.toHex());
+	if (burn == null) {
+		burn = new Burn(event.transaction.hash.toHex());
+		burn.transaction = transaction.id;
+		burn.timestamp = event.block.timestamp;
+		burn.token = event.params.riseToken.toHex();
+		burn.sender = user.id;
+	}
+	burn.burnedAmount = convertEthToDecimal(event.params.redeemedAmount);
+	burn.amountUSD = BigDecimal.fromString("0"); // Dummy
 	burn.save();
 }
 
