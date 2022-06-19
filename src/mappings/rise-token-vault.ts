@@ -20,19 +20,18 @@ import {
 import { convertEthToDecimal } from "./helpers";
 
 export function handleRiseTokenCreated(event: RiseTokenCreated): void {
-	let riseToken = RiseToken.load(event.transaction.hash.toHex());
+	let riseToken = RiseToken.load(event.params.token.toHex());
 	if (!riseToken) {
-		riseToken = new RiseToken(event.transaction.hash.toHex());
+		riseToken = new RiseToken(event.params.token.toHex());
+		// Dummy Data
+		riseToken.symbol = "<symbol>";
+		riseToken.name = "<name>";
+		riseToken.decimals = BigInt.fromI32(0);
+		riseToken.totalSupply = BigInt.fromI32(0);
+		riseToken.tradeVolume = BigDecimal.fromString("0");
+		riseToken.tradeVolumeUSD = BigDecimal.fromString("0");
+		riseToken.txCount = BigInt.fromI32(0);
 	}
-	/** @var {RiseToken} */
-	// riseToken.transaction;
-	// riseToken.symbol;
-	// riseToken.name;
-	// riseToken.decimals;
-	// riseToken.totalSupply;
-	// riseToken.tradeVolume;
-	// riseToken.tradeVolumeUSD;
-	// riseToken.txCount;
 	riseToken.save();
 }
 
