@@ -47,7 +47,7 @@ type Mint @entity {
   token: RiseToken!
 
   # populated from the primary Transfer event
-  to: Bytes!
+  to: Bytes
 
   # populated from the RiseTokenMinted event
   sender:  User!

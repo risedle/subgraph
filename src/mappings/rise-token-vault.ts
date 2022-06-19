@@ -56,7 +56,7 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 		mint.transaction = transaction.id;
 		mint.timestamp = event.block.timestamp;
 		mint.token = event.params.riseToken.toHex();
-		mint.to = event.transaction.to ?? Address.fromI32(0);
+		mint.to = event.transaction.to;
 		mint.sender = user.id;
 	}
 	mint.mintedAmount = convertEthToDecimal(event.params.mintedAmount);
