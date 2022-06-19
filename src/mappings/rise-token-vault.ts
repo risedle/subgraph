@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
 	RiseTokenBurned,
 	RiseTokenCreated,
@@ -17,20 +17,25 @@ import {
 	User,
 	Withdraw,
 } from "../types/schema";
-import { convertEthToDecimal } from "./helpers";
+import {
+	convertEthToDecimal,
+	fetchTokenDecimals,
+	fetchTokenName,
+	fetchTokenSymbol,
+	fetchTokenTotalSupply,
+} from "./helpers";
 
 export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 	let riseToken = RiseToken.load(event.params.token.toHex());
 	if (!riseToken) {
 		riseToken = new RiseToken(event.params.token.toHex());
-		// Dummy Data
-		riseToken.symbol = "<symbol>";
-		riseToken.name = "<name>";
-		riseToken.decimals = BigInt.fromI32(0);
-		riseToken.totalSupply = BigInt.fromI32(0);
-		riseToken.tradeVolume = BigDecimal.fromString("0");
-		riseToken.tradeVolumeUSD = BigDecimal.fromString("0");
-		riseToken.txCount = BigInt.fromI32(0);
+		riseToken.symbol = fetchTokenSymbol(event.params.token);
+		riseToken.name = fetchTokenName(event.params.token);
+		riseToken.decimals = fetchTokenDecimals(event.params.token);
+		riseToken.totalSupply = fetchTokenTotalSupply(event.params.token);
+		riseToken.tradeVolume = BigDecimal.fromString("0"); // Dummy
+		riseToken.tradeVolumeUSD = BigDecimal.fromString("0"); // Dummy
+		riseToken.txCount = BigInt.fromI32(0); // Dummy
 	}
 	riseToken.save();
 }
