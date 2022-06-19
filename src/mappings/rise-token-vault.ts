@@ -1,4 +1,4 @@
-import { Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import {
 	RiseTokenBurned,
 	RiseTokenCreated,
@@ -13,14 +13,11 @@ import {
 	Mint,
 	Rebalance,
 	RiseToken,
+	Transaction,
+	User,
 	Withdraw,
 } from "../types/schema";
-import {
-	convertEthToDecimal,
-	getRiseTokenByEvent,
-	getTransactionByEvent,
-	getUserByEvent,
-} from "./helpers";
+import { convertEthToDecimal } from "./helpers";
 
 export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 	let riseToken = RiseToken.load(event.transaction.hash.toHex());
@@ -40,29 +37,32 @@ export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 }
 
 export function handleRiseTokenMinted(event: RiseTokenMinted): void {
-	const tx = getTransactionByEvent(event);
-	const user = getUserByEvent(event);
-	const riseToken = getRiseTokenByEvent(event);
-
-	riseToken.save();
-
-	const mint = new Mint(tx.id);
-	mint.transaction = tx.id;
-	mint.timestamp = tx.timestamp;
-	mint.token = riseToken.id;
-	mint.to = Bytes.fromHexString(event.transaction.to?.toHexString() ?? "0");
-	mint.sender = user.id;
-	mint.mintedAmount = convertEthToDecimal(
-		(event as RiseTokenMinted).params.mintedAmount
-	);
-	// mint.amountUSD; --> TODO: cari nav
-	mint.save();
-
-	tx.mints = tx.mints ? tx.mints.concat([mint.id]) : [];
-	tx.save();
-
-	user.mints = user.mints ? user.mints.concat([mint.id]) : [];
+	let user = User.load(event.params.user.toHex());
+	if (user == null) {
+		user = new User(event.params.user.toHex());
+	}
 	user.save();
+
+	let transaction = Transaction.load(event.transaction.hash.toHex());
+	if (transaction == null) {
+		transaction = new Transaction(event.transaction.hash.toHex());
+		transaction.timestamp = event.block.timestamp;
+		transaction.blockNumber = event.block.number;
+	}
+	transaction.save();
+
+	let mint = Mint.load(event.transaction.hash.toHex());
+	if (mint == null) {
+		mint = new Mint(event.transaction.hash.toHex());
+		mint.transaction = transaction.id;
+		mint.timestamp = event.block.timestamp;
+		mint.token = event.params.riseToken.toHex();
+		mint.to = event.transaction.to ?? Address.fromI32(0);
+		mint.sender = user.id;
+	}
+	mint.mintedAmount = convertEthToDecimal(event.params.mintedAmount);
+	mint.amountUSD = BigDecimal.fromString("0"); // Dummy
+	mint.save();
 }
 
 export function handleRiseTokenBurned(event: RiseTokenBurned): void {
