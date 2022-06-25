@@ -2,12 +2,16 @@ import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { ERC20 } from "../types/RiseTokenVault/ERC20";
 import { ERC20NameBytes } from "../types/RiseTokenVault/ERC20NameBytes";
 import { ERC20SymbolBytes } from "../types/RiseTokenVault/ERC20SymbolBytes";
+import { Oracle } from "../types/RiseTokenVault/Oracle";
+import { RiseTokenVault } from "../types/RiseTokenVault/RiseTokenVault";
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
-const ZERO_BI = BigInt.fromI32(0);
-const ONE_BI = BigInt.fromI32(1);
-const BI_18 = BigInt.fromI32(18);
+export const ZERO_BI = BigInt.fromI32(0);
+export const ONE_BI = BigInt.fromI32(1);
+export const BI_18 = BigInt.fromI32(18);
+export const BI_6 = BigInt.fromI32(6);
+export const ZERO_BD = BigDecimal.fromString("0");
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {
 	let bd = BigDecimal.fromString("1");
@@ -23,6 +27,10 @@ export function bigDecimalExp18(): BigDecimal {
 
 export function convertEthToDecimal(eth: BigInt): BigDecimal {
 	return eth.toBigDecimal().div(exponentToBigDecimal(BI_18));
+}
+
+export function convertUSDCToDecimal(usdc: BigInt): BigDecimal {
+	return usdc.toBigDecimal().div(exponentToBigDecimal(BI_6));
 }
 
 export function isNullEthValue(value: string): boolean {
@@ -87,3 +95,16 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
 	const decimalResult = contract.try_decimals();
 	return BigInt.fromI32(decimalResult.value);
 }
+
+export const vaultAddress = Address.fromString(
+	"0xf7EDB240DbF7BBED7D321776AFe87D1FBcFD0A94"
+);
+export const tokenAddress = Address.fromString(
+	"0x46D06cf8052eA6FdbF71736AF33eD23686eA1452"
+);
+export const oracleAddress = Address.fromString(
+	"0x877bF15cAa17E4EE21236800D2D1a8dDA5B5251C"
+);
+export const vaultContract = RiseTokenVault.bind(vaultAddress);
+
+export const oracleContract = Oracle.bind(oracleAddress);

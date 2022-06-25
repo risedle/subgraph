@@ -1,168 +1,162 @@
 type RiseToken @entity {
   # token address
-  id: ID!
+  id: ID! # ✅ added 
 
   # mirrored from the smart contract
-  symbol: String!
-  name: String!
-  decimals: BigInt!
+  symbol: String! # ✅ added 
+  name: String! # ✅ added 
+  decimals: BigInt! # ✅ added 
 
   # used for other stats like marketcap
-  totalSupply: BigInt!
+  totalSupply: BigInt! # 🔴 not implemented yet 👍 tiap mint redeem update
 
   # token specific volume (mint + redeem)
-  tradeVolume: BigDecimal!
-  tradeVolumeUSD: BigDecimal!
+  tradeVolume: BigDecimal! # 🔴 not implemented yet 👍 mintedAmount (kalo di mint entities) --> redeem juga ditambahin ke sini
+  tradeVolumeUSD: BigDecimal! # 🔴 not implemented yet 👍 amountusd (kalo di mint entities) --> redeem juga ditambahin ke sini
 
   # transactions mint + redeem
-  txCount: BigInt!
+  txCount: BigInt! # 🔴 not implemented yet 👍 mint dan redeem aja
 }
 
 type User @entity {
-  id: ID!
-  mints: [Mint!] @derivedFrom(field: "sender")
-  redeems: [Burn!] @derivedFrom(field: "sender")
-  deposits: [Deposit!] @derivedFrom(field: "sender")
-  withdrawals: [Withdraw!] @derivedFrom(field: "sender")
+  id: ID! # ✅ added 
+  mints: [Mint!] @derivedFrom(field: "sender") # ✅ added 
+  redeems: [Burn!] @derivedFrom(field: "sender") # ✅ added 
+  deposits: [Deposit!] @derivedFrom(field: "sender") # ✅ added 
+  withdrawals: [Withdraw!] @derivedFrom(field: "sender") # ✅ added 
 }
 
-# 
 type Transaction @entity {
-  id: ID! # txn hash
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  mints: [Mint!]
-  redeems: [Burn!]
-  deposits: [Deposit!]
-  withdrawals: [Withdraw!]
-  rebalances: [Rebalance!]
+  id: ID! # txn hash # ✅ added 
+  blockNumber: BigInt! # ✅ added 
+  timestamp: BigInt! # ✅ added 
+  mints: [Mint!] # 🔴 not implemented yet 👍 tinggal concat
+  redeems: [Burn!] # 🔴 not implemented yet 👍 tinggal concat
+  deposits: [Deposit!] # 🔴 not implemented yet 👍 tinggal concat
+  withdrawals: [Withdraw!] # 🔴 not implemented yet 👍 tinggal concat
+  rebalances: [Rebalance!] # 🔴 not implemented yet 👍 tinggal concat
 }
 
 # RiseTokenMinted event
 type Mint @entity {
   # transaction hash
-  id: ID!
-  transaction: Transaction!
-  timestamp: BigInt! # need this to pull recent txns for specific token
-  token: RiseToken!
+  id: ID! # 🔴 need to concat with log index 👍 
+  transaction: Transaction! # ✅ added 
+  timestamp: BigInt!  # ✅ added 
+  token: RiseToken! # ✅ added 
 
   # populated from the primary Transfer event
-  to: Bytes
+  to: Bytes # ✅ added 
 
   # populated from the RiseTokenMinted event
-  sender:  User!
-  mintedAmount: BigDecimal
+  sender:  User! # ✅ added 
+  mintedAmount: BigDecimal! # ✅ added 
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountUSD: BigDecimal! # ✅ added 
 }
 
 # RiseTokenBurned event
 type Burn @entity {
   # transaction hash
-  id: ID!
-  transaction: Transaction!
-  timestamp: BigInt! # need this to pull recent txns for specific token
-  token: RiseToken!
+  id: ID! # 🔴 need to concat with log index 👍 
+  transaction: Transaction! # ✅ added 
+  timestamp: BigInt! # ✅ added 
+  token: RiseToken! # ✅ added 
 
   # populated from the RiseTokenBurned event
-  sender:  User!
-  burnedAmount: BigDecimal # redeemedAmount 
+  sender:  User! # ✅ added 
+  burnedAmount: BigDecimal! # ✅ added 
 
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountUSD: BigDecimal! # ✅ added 
 }
 
 # SupplyAdded event
 type Deposit @entity {
   # transaction hash
-  id: ID!
-  transaction: Transaction!
-  timestamp: BigInt! # need this to pull recent txns for specific token
-  tokenIn: Bytes
+  id: ID! # 🔴 need to concat with log index 👍 
+  transaction: Transaction! # ✅ added 
+  timestamp: BigInt! # ✅ added 
+  tokenIn: Bytes # ✅ added 
 
   # populated from the SupplyAdded event
-  sender: User!
-  mintedAmount: BigDecimal
+  sender: User! # ✅ added 
+  mintedAmount: BigDecimal! # ✅ added 
 
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountUSD: BigDecimal! # ✅ added 
 }
 
 # SupplyRemoved event
 type Withdraw @entity {
   # transaction hash
-  id: ID!
-  transaction: Transaction!
-  timestamp: BigInt! # need this to pull recent txns for specific token
-  tokenOut: Bytes
+  id: ID! # 🔴 need to concat with log index 👍 
+  transaction: Transaction! # ✅ added 
+  timestamp: BigInt! # ✅ added 
+  tokenOut: Bytes # ✅ added 
 
   # populated from the SupplyRemoved event
-  sender:  User!
-  rvTokenAmount: BigDecimal
-  exchangeRate: BigDecimal
-  tokenOutAmount: BigDecimal
+  sender: User! # ✅ added 
+  rvTokenAmount: BigDecimal # ✅ added 
+  exchangeRate: BigDecimal # ✅ added 
+  tokenOutAmount: BigDecimal! # ✅ added 
 
   # derived amount based on available prices of tokens
-  amountUSD: BigDecimal
+  amountUSD: BigDecimal! # ✅ added 
 }
 
 # RiseTokenRebalanced event
 type Rebalance @entity {
   # transaction hash
-  id: ID!
-  transaction: Transaction!
-  timestamp: BigInt! # need this to pull recent txns for specific token
-  token: RiseToken!
+  id: ID! # 🔴 need to concat with log index 👍 
+  transaction: Transaction! # ✅ added 
+  timestamp: BigInt! # ✅ added 
+  token: RiseToken! # ✅ added 
 
   # populated from the SupplyRemoved event
-  executor: Bytes
-  previousLeverageRatio: BigDecimal
-  leverageRatio: BigDecimal
+  executor: Bytes # ✅ added 
+  previousLeverageRatio: BigDecimal # ✅ added 
+  leverageRatio: BigDecimal # ✅ added 
 
-	previousTotalCollateral: BigDecimal
-  totalCollateral: BigDecimal
-  previousTotalDebt: BigDecimal
-  totalDebt: BigDecimal
-  totalRepayment: BigDecimal
-  totalBorrow: BigDecimal
-}
-
-# stores for USD calculations
-type Bundle @entity {
-  id: ID!
-  ethPrice: BigDecimal! # price of ETH usd
+  # 👍 sementara di skip dulu dipikir nanti 👍 entities nya tetep + bikin lastrebalance di rise token
+	previousTotalCollateral: BigDecimal # 🔴 not implemented yet 
+  totalCollateral: BigDecimal # 🔴 not implemented yet
+  previousTotalDebt: BigDecimal # 🔴 not implemented yet
+  totalDebt: BigDecimal # 🔴 not implemented yet
+  totalRepayment: BigDecimal # 🔴 not implemented yet
+  totalBorrow: BigDecimal # 🔴 not implemented yet
 }
 
 # Data accumulated and condensed into day stats for all of RiseToken
 type RiseTokenHourData @entity {
-  id: ID! # timestamp rounded to current day by dividing by 
-  date: Int!
+  id: ID! # ✅ added 
+  date: Int! # ✅ added 
 
-  hourlyVolumeETH: BigDecimal! # Mint + Redeem
-  hourlyVolumeUSD: BigDecimal!
-  hourlyFeeETH: BigDecimal! 
-  hourlyFeeUSD: BigDecimal!
+  hourlyVolumeETH: BigDecimal!  # ✅ added 
+  hourlyVolumeUSD: BigDecimal! # ✅ added 
+  hourlyFeeETH: BigDecimal! # 🔴 not implemented yet total fee sama kemarin gpp 👍
+  hourlyFeeUSD: BigDecimal!# 🔴 not implemented yet total fee sama kemarin gpp 👍 cuman harga usd dari ethpendingfees ethrise 👍
 
-  totalVolumeETH: BigDecimal! # Mint + Redeem
-  totalAUMETH: BigDecimal!
-  totalVolumeUSD: BigDecimal! 
-  totalAUMUSD: BigDecimal!
+  totalVolumeETH: BigDecimal!  # ✅ added 
+  totalAUMETH: BigDecimal! # 🔴 not implemented yet total eth 👍
+  totalVolumeUSD: BigDecimal!  # ✅ added 
+  totalAUMUSD: BigDecimal! # 🔴 not implemented yet total eth 👍 cuman harga usd dari eth ethrise bukan yang supply available cash 👍
 
-  txCount: BigInt!
+  txCount: BigInt! # ✅ added 
 }
 
 # Data accumulated and condensed into day stats for all of RiseToken
 type RiseTokenDayData @entity {
-  id: ID! # timestamp rounded to current day by dividing by 86400
-  date: Int!
+  id: ID! # ✅ added 
+  date: Int! # ✅ added 
 
-  dailyVolumeETH: BigDecimal! # Mint + Redeem
-  dailyVolumeUSD: BigDecimal!
+  dailyVolumeETH: BigDecimal! # ✅ added 
+  dailyVolumeUSD: BigDecimal! # ✅ added 
 
-  totalVolumeETH: BigDecimal! # Mint + Redeem
-  totalAUMETH: BigDecimal!
-  totalVolumeUSD: BigDecimal! 
-  totalAUMUSD: BigDecimal!
+  totalVolumeETH: BigDecimal! # ✅ added 
+  totalAUMETH: BigDecimal! # 🔴 not implemented yet total eth 👍
+  totalVolumeUSD: BigDecimal!  # ✅ added 
+  totalAUMUSD: BigDecimal! # 🔴 not implemented yet total eth 👍
 
-  txCount: BigInt!
+  txCount: BigInt! # ✅ added 
 }
