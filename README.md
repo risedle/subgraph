@@ -8,6 +8,8 @@ Currently, there is a single subgraph, but additional subgraphs can be added to 
 
 1. **[RISE Token Vault](https://thegraph.com/hosted-service/subgraph/dimasriat/risedle-dashboard)**: Tracks all analytics of Risedle Token Vault.
 
+TODO: add binance
+
 ## Dependencies
 
 - [Graph CLI](https://github.com/graphprotocol/graph-cli)
