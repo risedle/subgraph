@@ -30,14 +30,9 @@ type User @entity {
 
 type DailyActiveUser @entity {
   id: ID! # timestamp as Date
+  timestamp: BigInt!
   uniqueUsersCount: BigInt!
-  users: [User!]
-}
-
-type MothlyActiveUser @entity {
-  id: ID! # timestamp as Date
-  uniqueUsersCount: BigInt!
-  users: [User!]
+  users: [User!]!
 }
 
 type Transaction @entity {

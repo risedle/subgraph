@@ -10,6 +10,7 @@ import {
 } from "../types/RiseTokenVault/RiseTokenVault";
 import {
 	Burn,
+	DailyActiveUser,
 	Deposit,
 	Mint,
 	Rebalance,
@@ -18,7 +19,6 @@ import {
 	User,
 	Withdraw,
 } from "../types/schema";
-import { dailyVolumeUpdate, hourlyVolumeUpdate } from "./updates";
 import {
 	convertEthToDecimal,
 	convertUSDCToDecimal,
@@ -26,10 +26,13 @@ import {
 	fetchTokenName,
 	fetchTokenSymbol,
 	fetchTokenTotalSupply,
+	ONE_BI,
 	oracleContract,
 	tokenAddress,
 	vaultContract,
+	ZERO_BI,
 } from "./helpers";
+import { dailyVolumeUpdate, hourlyVolumeUpdate } from "./updates";
 
 export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 	let riseToken = RiseToken.load(event.params.token.toHex());
@@ -50,6 +53,28 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 	let user = User.load(event.params.user.toHex());
 	if (user == null) {
 		user = new User(event.params.user.toHex());
+		user.lastTransactionTimestamp = ZERO_BI;
+	}
+	user.save();
+
+	let dayTimestamp = event.block.timestamp.div(BigInt.fromI32(86400));
+	let dau = DailyActiveUser.load(dayTimestamp.toString());
+	if (dau == null) {
+		dau = new DailyActiveUser(dayTimestamp.toString());
+		dau.uniqueUsersCount = ONE_BI;
+		dau.timestamp = dayTimestamp.times(BigInt.fromI32(86400));
+		dau.users = [user.id];
+		dau.save();
+	} else {
+		if (
+			user.lastTransactionTimestamp.div(BigInt.fromI32(86400)) !=
+			dayTimestamp
+		) {
+			dau.uniqueUsersCount = dau.uniqueUsersCount.plus(ONE_BI);
+			dau.users = dau.users.concat([user.id]);
+			dau.timestamp = dayTimestamp.times(BigInt.fromI32(86400));
+			dau.save();
+		}
 	}
 	user.lastTransactionTimestamp = event.block.timestamp;
 	user.save();
@@ -84,8 +109,8 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 	let user = User.load(event.params.user.toHex());
 	if (user == null) {
 		user = new User(event.params.user.toHex());
+		user.lastTransactionTimestamp = ZERO_BI;
 	}
-	user.lastTransactionTimestamp = event.block.timestamp;
 	user.save();
 
 	let transaction = Transaction.load(event.transaction.hash.toHex());
@@ -145,6 +170,7 @@ export function handleSupplyAdded(event: SupplyAdded): void {
 	let user = User.load(event.params.account.toHex());
 	if (user == null) {
 		user = new User(event.params.account.toHex());
+		user.lastTransactionTimestamp = ZERO_BI;
 	}
 	user.save();
 
@@ -177,6 +203,7 @@ export function handleSupplyRemoved(event: SupplyRemoved): void {
 	let user = User.load(event.params.account.toHex());
 	if (user == null) {
 		user = new User(event.params.account.toHex());
+		user.lastTransactionTimestamp = ZERO_BI;
 	}
 	user.save();
 
