@@ -113,6 +113,28 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 	}
 	user.save();
 
+	let dayTimestamp = event.block.timestamp.div(BigInt.fromI32(86400));
+	let dau = DailyActiveUser.load(dayTimestamp.toString());
+	if (dau == null) {
+		dau = new DailyActiveUser(dayTimestamp.toString());
+		dau.uniqueUsersCount = ONE_BI;
+		dau.timestamp = dayTimestamp.times(BigInt.fromI32(86400));
+		dau.users = [user.id];
+		dau.save();
+	} else {
+		if (
+			user.lastTransactionTimestamp.div(BigInt.fromI32(86400)) !=
+			dayTimestamp
+		) {
+			dau.uniqueUsersCount = dau.uniqueUsersCount.plus(ONE_BI);
+			dau.users = dau.users.concat([user.id]);
+			dau.timestamp = dayTimestamp.times(BigInt.fromI32(86400));
+			dau.save();
+		}
+	}
+	user.lastTransactionTimestamp = event.block.timestamp;
+	user.save();
+
 	let transaction = Transaction.load(event.transaction.hash.toHex());
 	if (transaction == null) {
 		transaction = new Transaction(event.transaction.hash.toHex());
