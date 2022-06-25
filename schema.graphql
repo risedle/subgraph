@@ -35,6 +35,13 @@ type DailyActiveUser @entity {
   users: [User!]!
 }
 
+type MonthlyActiveUser @entity {
+  id: ID! # timestamp as Date
+  timestamp: BigInt!
+  uniqueUsersCount: BigInt!
+  users: [User!]!
+}
+
 type Transaction @entity {
   id: ID! # txn hash # ✅ added 
   blockNumber: BigInt! # ✅ added 

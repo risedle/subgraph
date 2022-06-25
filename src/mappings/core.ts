@@ -13,6 +13,7 @@ import {
 	DailyActiveUser,
 	Deposit,
 	Mint,
+	MonthlyActiveUser,
 	Rebalance,
 	RiseToken,
 	Transaction,
@@ -76,6 +77,27 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 			dau.save();
 		}
 	}
+
+	let monthTimestamp = event.block.timestamp.div(BigInt.fromI32(2592000));
+	let mau = MonthlyActiveUser.load(monthTimestamp.toString());
+	if (mau == null) {
+		mau = new MonthlyActiveUser(monthTimestamp.toString());
+		mau.uniqueUsersCount = ONE_BI;
+		mau.timestamp = monthTimestamp.times(BigInt.fromI32(2592000));
+		mau.users = [user.id];
+		mau.save();
+	} else {
+		if (
+			user.lastTransactionTimestamp.div(BigInt.fromI32(2592000)) !=
+			monthTimestamp
+		) {
+			mau.uniqueUsersCount = mau.uniqueUsersCount.plus(ONE_BI);
+			mau.users = mau.users.concat([user.id]);
+			mau.timestamp = monthTimestamp.times(BigInt.fromI32(2592000));
+			mau.save();
+		}
+	}
+
 	user.lastTransactionTimestamp = event.block.timestamp;
 	user.save();
 
@@ -132,6 +154,27 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 			dau.save();
 		}
 	}
+
+	let monthTimestamp = event.block.timestamp.div(BigInt.fromI32(2592000));
+	let mau = MonthlyActiveUser.load(monthTimestamp.toString());
+	if (mau == null) {
+		mau = new MonthlyActiveUser(monthTimestamp.toString());
+		mau.uniqueUsersCount = ONE_BI;
+		mau.timestamp = monthTimestamp.times(BigInt.fromI32(2592000));
+		mau.users = [user.id];
+		mau.save();
+	} else {
+		if (
+			user.lastTransactionTimestamp.div(BigInt.fromI32(2592000)) !=
+			monthTimestamp
+		) {
+			mau.uniqueUsersCount = mau.uniqueUsersCount.plus(ONE_BI);
+			mau.users = mau.users.concat([user.id]);
+			mau.timestamp = monthTimestamp.times(BigInt.fromI32(2592000));
+			mau.save();
+		}
+	}
+	
 	user.lastTransactionTimestamp = event.block.timestamp;
 	user.save();
 
