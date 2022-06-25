@@ -51,6 +51,7 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 	if (user == null) {
 		user = new User(event.params.user.toHex());
 	}
+	user.lastTransactionTimestamp = event.block.timestamp;
 	user.save();
 
 	let transaction = Transaction.load(event.transaction.hash.toHex());
@@ -84,6 +85,7 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 	if (user == null) {
 		user = new User(event.params.user.toHex());
 	}
+	user.lastTransactionTimestamp = event.block.timestamp;
 	user.save();
 
 	let transaction = Transaction.load(event.transaction.hash.toHex());
