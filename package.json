@@ -1,8 +1,8 @@
 {
   "name": "risedle-dashboard",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
-    "codegen": "graph codegen",
+    "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ dimasriat/risedle-dashboard",
     "create-local": "graph create --node http://localhost:8020/ dimasriat/risedle-dashboard",
@@ -14,6 +14,11 @@
     "@graphprotocol/graph-ts": "0.27.0"
   },
   "devDependencies": {
-    "prettier": "^2.6.2"
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "eslint": "^6.2.2",
+    "eslint-config-prettier": "^6.1.0",
+    "prettier": "^1.18.2",
+    "typescript": "^3.5.2"
   }
 }

@@ -1,0 +1,47 @@
+specVersion: 0.0.4
+description: Risedle is a protocol that facilitates peer-to-peer leveraged token creation and redemption on EVM compatible or equivalence blockchain.
+repository: https://github.com/risedle/subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: RiseTokenVault
+    network: arbitrum-one
+    source:
+      address: "0xf7EDB240DbF7BBED7D321776AFe87D1FBcFD0A94"
+      abi: RiseTokenVault
+      startBlock: 5171753
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/rise-token-vault.ts
+      entities:
+        - RiseTokenCreated
+        - RiseTokenMinted
+        - RiseTokenBurned
+        - RiseTokenRebalanced
+        - SupplyAdded
+        - SupplyRemoved
+      abis:
+        - name: RiseTokenVault
+          file: ./abis/RiseTokenVault.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+      eventHandlers:
+        - event: RiseTokenCreated(indexed address,address)
+          handler: handleRiseTokenCreated
+        - event: RiseTokenMinted(indexed address,indexed address,uint256)
+          handler: handleRiseTokenMinted
+        - event: RiseTokenRebalanced(indexed address,uint256)
+          handler: handleRiseTokenRebalanced
+        - event: RiseTokenBurned(indexed address,indexed address,uint256)
+          handler: handleRiseTokenBurned
+        - event: SupplyAdded(indexed address,uint256,uint256,uint256)
+          handler: handleSupplyAdded
+        - event: SupplyRemoved(indexed address,uint256,uint256,uint256)
+          handler: handleSupplyRemoved

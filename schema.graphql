@@ -1,0 +1,168 @@
+type RiseToken @entity {
+  # token address
+  id: ID!
+
+  # mirrored from the smart contract
+  symbol: String!
+  name: String!
+  decimals: BigInt!
+
+  # used for other stats like marketcap
+  totalSupply: BigInt!
+
+  # token specific volume (mint + redeem)
+  tradeVolume: BigDecimal!
+  tradeVolumeUSD: BigDecimal!
+
+  # transactions mint + redeem
+  txCount: BigInt!
+}
+
+type User @entity {
+  id: ID!
+  mints: [Mint!] @derivedFrom(field: "sender")
+  redeems: [Burn!] @derivedFrom(field: "sender")
+  deposits: [Deposit!] @derivedFrom(field: "sender")
+  withdrawals: [Withdraw!] @derivedFrom(field: "sender")
+}
+
+# 
+type Transaction @entity {
+  id: ID! # txn hash
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  mints: [Mint!]
+  redeems: [Burn!]
+  deposits: [Deposit!]
+  withdrawals: [Withdraw!]
+  rebalances: [Rebalance!]
+}
+
+# RiseTokenMinted event
+type Mint @entity {
+  # transaction hash
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token
+  token: RiseToken!
+
+  # populated from the primary Transfer event
+  to: Bytes
+
+  # populated from the RiseTokenMinted event
+  sender:  User!
+  mintedAmount: BigDecimal
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+}
+
+# RiseTokenBurned event
+type Burn @entity {
+  # transaction hash
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token
+  token: RiseToken!
+
+  # populated from the RiseTokenBurned event
+  sender:  User!
+  burnedAmount: BigDecimal # redeemedAmount 
+
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+}
+
+# SupplyAdded event
+type Deposit @entity {
+  # transaction hash
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token
+  tokenIn: Bytes
+
+  # populated from the SupplyAdded event
+  sender: User!
+  mintedAmount: BigDecimal
+
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+}
+
+# SupplyRemoved event
+type Withdraw @entity {
+  # transaction hash
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token
+  tokenOut: Bytes
+
+  # populated from the SupplyRemoved event
+  sender:  User!
+  rvTokenAmount: BigDecimal
+  exchangeRate: BigDecimal
+  tokenOutAmount: BigDecimal
+
+  # derived amount based on available prices of tokens
+  amountUSD: BigDecimal
+}
+
+# RiseTokenRebalanced event
+type Rebalance @entity {
+  # transaction hash
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt! # need this to pull recent txns for specific token
+  token: RiseToken!
+
+  # populated from the SupplyRemoved event
+  executor: Bytes
+  previousLeverageRatio: BigDecimal
+  leverageRatio: BigDecimal
+
+	previousTotalCollateral: BigDecimal
+  totalCollateral: BigDecimal
+  previousTotalDebt: BigDecimal
+  totalDebt: BigDecimal
+  totalRepayment: BigDecimal
+  totalBorrow: BigDecimal
+}
+
+# stores for USD calculations
+type Bundle @entity {
+  id: ID!
+  ethPrice: BigDecimal! # price of ETH usd
+}
+
+# Data accumulated and condensed into day stats for all of RiseToken
+type RiseTokenHourData @entity {
+  id: ID! # timestamp rounded to current day by dividing by 
+  date: Int!
+
+  hourlyVolumeETH: BigDecimal! # Mint + Redeem
+  hourlyVolumeUSD: BigDecimal!
+  hourlyFeeETH: BigDecimal! 
+  hourlyFeeUSD: BigDecimal!
+
+  totalVolumeETH: BigDecimal! # Mint + Redeem
+  totalAUMETH: BigDecimal!
+  totalVolumeUSD: BigDecimal! 
+  totalAUMUSD: BigDecimal!
+
+  txCount: BigInt!
+}
+
+# Data accumulated and condensed into day stats for all of RiseToken
+type RiseTokenDayData @entity {
+  id: ID! # timestamp rounded to current day by dividing by 86400
+  date: Int!
+
+  dailyVolumeETH: BigDecimal! # Mint + Redeem
+  dailyVolumeUSD: BigDecimal!
+
+  totalVolumeETH: BigDecimal! # Mint + Redeem
+  totalAUMETH: BigDecimal!
+  totalVolumeUSD: BigDecimal! 
+  totalAUMUSD: BigDecimal!
+
+  txCount: BigInt!
+}
