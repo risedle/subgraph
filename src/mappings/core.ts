@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
 	RiseTokenBurned,
@@ -17,12 +18,17 @@ import {
 	User,
 	Withdraw,
 } from "../types/schema";
+import { dailyVolumeUpdate, hourlyVolumeUpdate } from "./updates";
 import {
 	convertEthToDecimal,
+	convertUSDCToDecimal,
 	fetchTokenDecimals,
 	fetchTokenName,
 	fetchTokenSymbol,
 	fetchTokenTotalSupply,
+	oracleContract,
+	tokenAddress,
+	vaultContract,
 } from "./helpers";
 
 export function handleRiseTokenCreated(event: RiseTokenCreated): void {
@@ -35,7 +41,7 @@ export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 		riseToken.totalSupply = fetchTokenTotalSupply(event.params.token);
 		riseToken.tradeVolume = BigDecimal.fromString("0"); // Dummy
 		riseToken.tradeVolumeUSD = BigDecimal.fromString("0"); // Dummy
-		riseToken.txCount = BigInt.fromI32(0); // Dummy
+		riseToken.txCount = BigInt.fromI32(0);
 	}
 	riseToken.save();
 }
@@ -67,6 +73,10 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 	mint.mintedAmount = convertEthToDecimal(event.params.mintedAmount);
 	mint.amountUSD = BigDecimal.fromString("0"); // Dummy
 	mint.save();
+
+	// price update
+	hourlyVolumeUpdate(event, event.transaction.value);
+	dailyVolumeUpdate(event, event.transaction.value);
 }
 
 export function handleRiseTokenBurned(event: RiseTokenBurned): void {
@@ -93,8 +103,14 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 		burn.sender = user.id;
 	}
 	burn.burnedAmount = convertEthToDecimal(event.params.redeemedAmount);
-	burn.amountUSD = BigDecimal.fromString("0"); // Dummy
+	burn.amountUSD = burn.burnedAmount.times(
+		convertUSDCToDecimal(oracleContract.getPrice())
+	);
 	burn.save();
+
+	// price update
+	hourlyVolumeUpdate(event, event.params.redeemedAmount);
+	dailyVolumeUpdate(event, event.params.redeemedAmount);
 }
 
 export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
@@ -114,20 +130,12 @@ export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
 		rebalance.token = "0x46D06cf8052eA6FdbF71736AF33eD23686eA1452"; // ETHRISE in Arbitrum
 	}
 	rebalance.executor = event.params.executor;
-	/** @var {Rebalance} */
-	// rebalance.transaction;
-	// rebalance.timestamp;
-	// rebalance.token;
-	// rebalance.executor;
-	// rebalance.burnedAmount;
-	// rebalance.previousLeverageRatio;
-	// rebalance.leverageRatio;
-	// rebalance.previousTotalCollateral;
-	// rebalance.totalCollateral;
-	// rebalance.previousTotalDebt;
-	// rebalance.totalDebt;
-	// rebalance.totalRepayment;
-	// rebalance.totalBorrow;
+	rebalance.previousLeverageRatio = convertEthToDecimal(
+		event.params.previousLeverageRatioInEther
+	);
+	rebalance.leverageRatio = convertEthToDecimal(
+		vaultContract.getLeverageRatioInEther(tokenAddress)
+	);
 	rebalance.save();
 }
 
@@ -157,7 +165,9 @@ export function handleSupplyAdded(event: SupplyAdded): void {
 		deposit.sender = user.id;
 	}
 	deposit.mintedAmount = convertEthToDecimal(event.params.mintedAmount);
-	deposit.amountUSD = BigDecimal.fromString("0"); // Dummy
+	deposit.amountUSD = deposit.mintedAmount.times(
+		convertUSDCToDecimal(oracleContract.getPrice())
+	);
 	deposit.save();
 }
 
@@ -191,6 +201,8 @@ export function handleSupplyRemoved(event: SupplyRemoved): void {
 		event.params.ExchangeRateInEther
 	);
 	withdraw.tokenOutAmount = convertEthToDecimal(event.params.redeemedAmount);
-	withdraw.amountUSD = BigDecimal.fromString("0"); // Dummy
+	withdraw.amountUSD = withdraw.tokenOutAmount.times(
+		convertUSDCToDecimal(oracleContract.getPrice())
+	);
 	withdraw.save();
 }
