@@ -24,6 +24,22 @@ type User @entity {
   redeems: [Burn!] @derivedFrom(field: "sender") # ✅ added 
   deposits: [Deposit!] @derivedFrom(field: "sender") # ✅ added 
   withdrawals: [Withdraw!] @derivedFrom(field: "sender") # ✅ added 
+
+  lastTransactionTimestamp: BigInt!
+}
+
+type DailyActiveUser @entity {
+  id: ID! # timestamp as Date
+  timestamp: BigInt!
+  uniqueUsersCount: BigInt!
+  users: [User!]!
+}
+
+type MonthlyActiveUser @entity {
+  id: ID! # timestamp as Date
+  timestamp: BigInt!
+  uniqueUsersCount: BigInt!
+  users: [User!]!
 }
 
 type Transaction @entity {
