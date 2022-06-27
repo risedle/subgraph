@@ -119,7 +119,9 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 		mint.sender = user.id;
 	}
 	mint.mintedAmount = convertEthToDecimal(event.params.mintedAmount);
-	mint.amountUSD = BigDecimal.fromString("0"); // Dummy
+	mint.amountUSD = convertEthToDecimal(event.transaction.value).times(
+		convertUSDCToDecimal(oracleContract.getPrice())
+	);
 	mint.save();
 
 	// price update
