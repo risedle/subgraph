@@ -241,6 +241,49 @@ export function handleSupplyAdded(event: SupplyAdded): void {
 	}
 	user.save();
 
+	let dayTimestamp = event.block.timestamp.div(BigInt.fromI32(86400));
+	let dau = DailyActiveUser.load(dayTimestamp.toString());
+	if (dau == null) {
+		dau = new DailyActiveUser(dayTimestamp.toString());
+		dau.uniqueUsersCount = ONE_BI;
+		dau.timestamp = dayTimestamp.times(BigInt.fromI32(86400));
+		dau.users = [user.id];
+		dau.save();
+	} else {
+		if (
+			user.lastTransactionTimestamp.div(BigInt.fromI32(86400)) !=
+			dayTimestamp
+		) {
+			dau.uniqueUsersCount = dau.uniqueUsersCount.plus(ONE_BI);
+			dau.users = dau.users.concat([user.id]);
+			dau.timestamp = dayTimestamp.times(BigInt.fromI32(86400));
+			dau.save();
+		}
+	}
+
+	let monthTimestamp = event.block.timestamp.div(BigInt.fromI32(2592000));
+	let mau = MonthlyActiveUser.load(monthTimestamp.toString());
+	if (mau == null) {
+		mau = new MonthlyActiveUser(monthTimestamp.toString());
+		mau.uniqueUsersCount = ONE_BI;
+		mau.timestamp = monthTimestamp.times(BigInt.fromI32(2592000));
+		mau.users = [user.id];
+		mau.save();
+	} else {
+		if (
+			user.lastTransactionTimestamp.div(BigInt.fromI32(2592000)) !=
+			monthTimestamp
+		) {
+			mau.uniqueUsersCount = mau.uniqueUsersCount.plus(ONE_BI);
+			mau.users = mau.users.concat([user.id]);
+			mau.timestamp = monthTimestamp.times(BigInt.fromI32(2592000));
+			mau.save();
+		}
+	}
+
+	user.lastTransactionTimestamp = event.block.timestamp;
+	user.save();
+
 	let transaction = Transaction.load(event.transaction.hash.toHex());
 	if (transaction == null) {
 		transaction = new Transaction(event.transaction.hash.toHex());
@@ -272,6 +315,49 @@ export function handleSupplyRemoved(event: SupplyRemoved): void {
 		user = new User(event.params.account.toHex());
 		user.lastTransactionTimestamp = ZERO_BI;
 	}
+	user.save();
+
+	let dayTimestamp = event.block.timestamp.div(BigInt.fromI32(86400));
+	let dau = DailyActiveUser.load(dayTimestamp.toString());
+	if (dau == null) {
+		dau = new DailyActiveUser(dayTimestamp.toString());
+		dau.uniqueUsersCount = ONE_BI;
+		dau.timestamp = dayTimestamp.times(BigInt.fromI32(86400));
+		dau.users = [user.id];
+		dau.save();
+	} else {
+		if (
+			user.lastTransactionTimestamp.div(BigInt.fromI32(86400)) !=
+			dayTimestamp
+		) {
+			dau.uniqueUsersCount = dau.uniqueUsersCount.plus(ONE_BI);
+			dau.users = dau.users.concat([user.id]);
+			dau.timestamp = dayTimestamp.times(BigInt.fromI32(86400));
+			dau.save();
+		}
+	}
+
+	let monthTimestamp = event.block.timestamp.div(BigInt.fromI32(2592000));
+	let mau = MonthlyActiveUser.load(monthTimestamp.toString());
+	if (mau == null) {
+		mau = new MonthlyActiveUser(monthTimestamp.toString());
+		mau.uniqueUsersCount = ONE_BI;
+		mau.timestamp = monthTimestamp.times(BigInt.fromI32(2592000));
+		mau.users = [user.id];
+		mau.save();
+	} else {
+		if (
+			user.lastTransactionTimestamp.div(BigInt.fromI32(2592000)) !=
+			monthTimestamp
+		) {
+			mau.uniqueUsersCount = mau.uniqueUsersCount.plus(ONE_BI);
+			mau.users = mau.users.concat([user.id]);
+			mau.timestamp = monthTimestamp.times(BigInt.fromI32(2592000));
+			mau.save();
+		}
+	}
+
+	user.lastTransactionTimestamp = event.block.timestamp;
 	user.save();
 
 	let transaction = Transaction.load(event.transaction.hash.toHex());
