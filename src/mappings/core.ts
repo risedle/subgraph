@@ -174,7 +174,7 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 			mau.save();
 		}
 	}
-	
+
 	user.lastTransactionTimestamp = event.block.timestamp;
 	user.save();
 
