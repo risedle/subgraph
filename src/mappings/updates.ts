@@ -36,6 +36,7 @@ export function riseTokenUpdate(
 
 export function hourlyVolumeUpdate(
 	event: ethereum.Event,
+	riseTokenAddress: string,
 	amount: BigInt
 ): void {
 	// hourly update
@@ -66,10 +67,20 @@ export function hourlyVolumeUpdate(
 		convertUSDCToDecimal(oracleContract.getPrice())
 	);
 	riseTokenHourData.txCount = riseTokenHourData.txCount.plus(ONE_BI);
-	riseTokenHourData.save();
+
+	let riseToken = RiseToken.load(riseTokenAddress);
+	if (riseToken) {
+		riseTokenHourData.totalVolumeETH = riseToken.tradeVolume;
+		riseTokenHourData.totalVolumeUSD = riseToken.tradeVolumeUSD;
+		riseTokenHourData.save();
+	}
 }
 
-export function dailyVolumeUpdate(event: ethereum.Event, amount: BigInt): void {
+export function dailyVolumeUpdate(
+	event: ethereum.Event,
+	riseTokenAddress: string,
+	amount: BigInt
+): void {
 	// daily update
 	const dayTimestamp = event.block.timestamp.div(BigInt.fromI32(86400));
 	let riseTokenDayData = RiseTokenDayData.load(dayTimestamp.toString());
@@ -96,5 +107,11 @@ export function dailyVolumeUpdate(event: ethereum.Event, amount: BigInt): void {
 		convertUSDCToDecimal(oracleContract.getPrice())
 	);
 	riseTokenDayData.txCount = riseTokenDayData.txCount.plus(ONE_BI);
-	riseTokenDayData.save();
+	
+	let riseToken = RiseToken.load(riseTokenAddress);
+	if (riseToken) {
+		riseTokenDayData.totalVolumeETH = riseToken.tradeVolume;
+		riseTokenDayData.totalVolumeUSD = riseToken.tradeVolumeUSD;
+		riseTokenDayData.save();
+	}
 }

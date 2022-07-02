@@ -132,8 +132,16 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 	riseTokenUpdate(event.params.riseToken.toHex(), event.transaction.value);
 
 	// price update
-	hourlyVolumeUpdate(event, event.transaction.value);
-	dailyVolumeUpdate(event, event.transaction.value);
+	hourlyVolumeUpdate(
+		event,
+		event.params.riseToken.toHex(),
+		event.transaction.value
+	);
+	dailyVolumeUpdate(
+		event,
+		event.params.riseToken.toHex(),
+		event.transaction.value
+	);
 }
 
 export function handleRiseTokenBurned(event: RiseTokenBurned): void {
@@ -216,8 +224,16 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 	);
 
 	// price update
-	hourlyVolumeUpdate(event, event.params.redeemedAmount);
-	dailyVolumeUpdate(event, event.params.redeemedAmount);
+	hourlyVolumeUpdate(
+		event,
+		event.params.riseToken.toHex(),
+		event.params.redeemedAmount
+	);
+	dailyVolumeUpdate(
+		event,
+		event.params.riseToken.toHex(),
+		event.params.redeemedAmount
+	);
 }
 
 export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
