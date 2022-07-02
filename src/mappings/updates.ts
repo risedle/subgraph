@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
 	RiseToken,
 	RiseTokenDayData,
@@ -66,6 +66,23 @@ export function hourlyVolumeUpdate(
 	riseTokenHourData.hourlyVolumeUSD = riseTokenHourData.hourlyVolumeETH.times(
 		convertUSDCToDecimal(oracleContract.getPrice())
 	);
+
+	let metadata = vaultContract.getMetadata(
+		Address.fromString(riseTokenAddress)
+	);
+	riseTokenHourData.hourlyFeeETH = convertEthToDecimal(
+		metadata.totalPendingFees
+	);
+	riseTokenHourData.hourlyFeeUSD = riseTokenHourData.hourlyFeeETH.times(
+		convertUSDCToDecimal(oracleContract.getPrice())
+	);
+	riseTokenHourData.totalAUMETH = convertEthToDecimal(
+		metadata.totalCollateralPlusFee
+	);
+	riseTokenHourData.totalAUMUSD = riseTokenHourData.totalAUMETH.times(
+		convertUSDCToDecimal(oracleContract.getPrice())
+	);
+
 	riseTokenHourData.txCount = riseTokenHourData.txCount.plus(ONE_BI);
 
 	let riseToken = RiseToken.load(riseTokenAddress);
@@ -106,8 +123,19 @@ export function dailyVolumeUpdate(
 	riseTokenDayData.dailyVolumeUSD = riseTokenDayData.dailyVolumeETH.times(
 		convertUSDCToDecimal(oracleContract.getPrice())
 	);
+
+	let metadata = vaultContract.getMetadata(
+		Address.fromString(riseTokenAddress)
+	);
+	riseTokenDayData.totalAUMETH = convertEthToDecimal(
+		metadata.totalCollateralPlusFee
+	);
+	riseTokenDayData.totalAUMUSD = riseTokenDayData.totalAUMETH.times(
+		convertUSDCToDecimal(oracleContract.getPrice())
+	);
+
 	riseTokenDayData.txCount = riseTokenDayData.txCount.plus(ONE_BI);
-	
+
 	let riseToken = RiseToken.load(riseTokenAddress);
 	if (riseToken) {
 		riseTokenDayData.totalVolumeETH = riseToken.tradeVolume;
