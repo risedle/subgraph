@@ -196,8 +196,8 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 		burn.token = event.params.riseToken.toHex();
 		burn.sender = user.id;
 	}
-	burn.burnedAmount = convertEthToDecimal(event.params.redeemedAmount);
-	burn.amountUSD = burn.burnedAmount.times(
+	burn.ethAmount = convertEthToDecimal(event.params.redeemedAmount);
+	burn.amountUSD = burn.ethAmount.times(
 		convertUSDCToDecimal(oracleContract.getPrice())
 	);
 	burn.save();

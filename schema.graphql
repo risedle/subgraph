@@ -81,7 +81,7 @@ type Burn @entity {
 
   # populated from the RiseTokenBurned event
   sender:  User! # ✅ added 
-  burnedAmount: BigDecimal! # ✅ added 
+  ethAmount: BigDecimal! # ✅ added 
 
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal! # ✅ added 
