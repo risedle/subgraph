@@ -1,5 +1,10 @@
+/* eslint-disable prefer-const */
 import { BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { RiseTokenDayData, RiseTokenHourData } from "../types/schema";
+import {
+	RiseToken,
+	RiseTokenDayData,
+	RiseTokenHourData,
+} from "../types/schema";
 import {
 	ZERO_BD,
 	ZERO_BI,
@@ -7,7 +12,27 @@ import {
 	convertUSDCToDecimal,
 	oracleContract,
 	ONE_BI,
+	vaultContract,
 } from "./helpers";
+
+export function riseTokenUpdate(
+	riseTokenAddress: string,
+	amount: BigInt
+): void {
+	// Rise token update
+	let riseToken = RiseToken.load(riseTokenAddress);
+	if (riseToken) {
+		riseToken.tradeVolume = riseToken.tradeVolume.plus(
+			convertEthToDecimal(amount)
+		);
+		riseToken.tradeVolumeUSD = riseToken.tradeVolume.times(
+			convertUSDCToDecimal(oracleContract.getPrice())
+		);
+		riseToken.totalSupply = vaultContract.totalSupply();
+		riseToken.txCount = riseToken.txCount.plus(ONE_BI);
+		riseToken.save();
+	}
+}
 
 export function hourlyVolumeUpdate(
 	event: ethereum.Event,

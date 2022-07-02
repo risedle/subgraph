@@ -33,7 +33,11 @@ import {
 	vaultContract,
 	ZERO_BI,
 } from "./helpers";
-import { dailyVolumeUpdate, hourlyVolumeUpdate } from "./updates";
+import {
+	dailyVolumeUpdate,
+	hourlyVolumeUpdate,
+	riseTokenUpdate,
+} from "./updates";
 
 export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 	let riseToken = RiseToken.load(event.params.token.toHex());
@@ -124,6 +128,9 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 	);
 	mint.save();
 
+	// Rise token update
+	riseTokenUpdate(event.params.riseToken.toHex(), event.transaction.value);
+
 	// price update
 	hourlyVolumeUpdate(event, event.transaction.value);
 	dailyVolumeUpdate(event, event.transaction.value);
@@ -201,6 +208,12 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 		convertUSDCToDecimal(oracleContract.getPrice())
 	);
 	burn.save();
+
+	// Rise token update
+	riseTokenUpdate(
+		event.params.riseToken.toHex(),
+		event.params.redeemedAmount
+	);
 
 	// price update
 	hourlyVolumeUpdate(event, event.params.redeemedAmount);
