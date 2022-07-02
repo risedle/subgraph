@@ -113,15 +113,17 @@ export function handleRiseTokenMinted(event: RiseTokenMinted): void {
 	}
 	transaction.save();
 
-	let mint = Mint.load(event.transaction.hash.toHex());
-	if (mint == null) {
-		mint = new Mint(event.transaction.hash.toHex());
-		mint.transaction = transaction.id;
-		mint.timestamp = event.block.timestamp;
-		mint.token = event.params.riseToken.toHex();
-		mint.to = event.transaction.to;
-		mint.sender = user.id;
-	}
+	let mint = new Mint(
+		event.transaction.hash
+			.toHex()
+			.concat("-")
+			.concat(event.logIndex.toString())
+	);
+	mint.transaction = transaction.id;
+	mint.timestamp = event.block.timestamp;
+	mint.token = event.params.riseToken.toHex();
+	mint.to = event.transaction.to;
+	mint.sender = user.id;
 	mint.mintedAmount = convertEthToDecimal(event.params.mintedAmount);
 	mint.amountUSD = convertEthToDecimal(event.transaction.value).times(
 		convertUSDCToDecimal(oracleContract.getPrice())
@@ -203,14 +205,17 @@ export function handleRiseTokenBurned(event: RiseTokenBurned): void {
 	}
 	transaction.save();
 
-	let burn = Burn.load(event.transaction.hash.toHex());
-	if (burn == null) {
-		burn = new Burn(event.transaction.hash.toHex());
-		burn.transaction = transaction.id;
-		burn.timestamp = event.block.timestamp;
-		burn.token = event.params.riseToken.toHex();
-		burn.sender = user.id;
-	}
+	let burn = new Burn(
+		event.transaction.hash
+			.toHex()
+			.concat("-")
+			.concat(event.logIndex.toString())
+	);
+	burn.transaction = transaction.id;
+	burn.timestamp = event.block.timestamp;
+	burn.token = event.params.riseToken.toHex();
+	burn.sender = user.id;
+
 	burn.ethAmount = convertEthToDecimal(event.params.redeemedAmount);
 	burn.amountUSD = burn.ethAmount.times(
 		convertUSDCToDecimal(oracleContract.getPrice())
@@ -245,13 +250,16 @@ export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
 	}
 	transaction.save();
 
-	let rebalance = Rebalance.load(event.transaction.hash.toHex());
-	if (rebalance == null) {
-		rebalance = new Rebalance(event.transaction.hash.toHex());
-		rebalance.transaction = transaction.id;
-		rebalance.timestamp = event.block.timestamp;
-		rebalance.token = "0x46D06cf8052eA6FdbF71736AF33eD23686eA1452"; // ETHRISE in Arbitrum
-	}
+	let rebalance = new Rebalance(
+		event.transaction.hash
+			.toHex()
+			.concat("-")
+			.concat(event.logIndex.toString())
+	);
+	rebalance.transaction = transaction.id;
+	rebalance.timestamp = event.block.timestamp;
+	rebalance.token = "0x46D06cf8052eA6FdbF71736AF33eD23686eA1452"; // ETHRISE in Arbitrum
+
 	rebalance.executor = event.params.executor;
 	rebalance.previousLeverageRatio = convertEthToDecimal(
 		event.params.previousLeverageRatioInEther
@@ -321,16 +329,19 @@ export function handleSupplyAdded(event: SupplyAdded): void {
 	}
 	transaction.save();
 
-	let deposit = Deposit.load(event.transaction.hash.toHex());
-	if (deposit == null) {
-		deposit = new Deposit(event.transaction.hash.toHex());
-		deposit.transaction = transaction.id;
-		deposit.timestamp = event.block.timestamp;
-		deposit.tokenIn = Bytes.fromHexString(
-			"0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
-		); // USDC in arbitrum
-		deposit.sender = user.id;
-	}
+	let deposit = new Deposit(
+		event.transaction.hash
+			.toHex()
+			.concat("-")
+			.concat(event.logIndex.toString())
+	);
+	deposit.transaction = transaction.id;
+	deposit.timestamp = event.block.timestamp;
+	deposit.tokenIn = Bytes.fromHexString(
+		"0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+	); // USDC in arbitrum
+	deposit.sender = user.id;
+
 	deposit.mintedAmount = convertEthToDecimal(event.params.mintedAmount);
 	deposit.amountUSD = deposit.mintedAmount.times(
 		convertUSDCToDecimal(oracleContract.getPrice())
@@ -397,16 +408,19 @@ export function handleSupplyRemoved(event: SupplyRemoved): void {
 	}
 	transaction.save();
 
-	let withdraw = Withdraw.load(event.transaction.hash.toHex());
-	if (withdraw == null) {
-		withdraw = new Withdraw(event.transaction.hash.toHex());
-		withdraw.transaction = transaction.id;
-		withdraw.timestamp = event.block.timestamp;
-		withdraw.tokenOut = Bytes.fromHexString(
-			"0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
-		); // USDC in arbitrum
-		withdraw.sender = user.id;
-	}
+	let withdraw = new Withdraw(
+		event.transaction.hash
+			.toHex()
+			.concat("-")
+			.concat(event.logIndex.toString())
+	);
+	withdraw.transaction = transaction.id;
+	withdraw.timestamp = event.block.timestamp;
+	withdraw.tokenOut = Bytes.fromHexString(
+		"0xff970a61a04b1ca14834a43f5de4533ebddb5cc8"
+	); // USDC in arbitrum
+	withdraw.sender = user.id;
+
 	withdraw.rvTokenAmount = convertEthToDecimal(event.params.amount);
 	withdraw.exchangeRate = convertEthToDecimal(
 		event.params.ExchangeRateInEther
