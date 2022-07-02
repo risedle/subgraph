@@ -8,14 +8,14 @@ type RiseToken @entity {
   decimals: BigInt! # ✅ added 
 
   # used for other stats like marketcap
-  totalSupply: BigInt! # 🔴 not implemented yet 👍 tiap mint redeem update
+  totalSupply: BigInt! # ✅ added 
 
   # token specific volume (mint + redeem)
-  tradeVolume: BigDecimal! # 🔴 not implemented yet 👍 mintedAmount (kalo di mint entities) --> redeem juga ditambahin ke sini
-  tradeVolumeUSD: BigDecimal! # 🔴 not implemented yet 👍 amountusd (kalo di mint entities) --> redeem juga ditambahin ke sini
+  tradeVolume: BigDecimal! # ✅ added 
+  tradeVolumeUSD: BigDecimal! # ✅ added 
 
   # transactions mint + redeem
-  txCount: BigInt! # 🔴 not implemented yet 👍 mint dan redeem aja
+  txCount: BigInt! # ✅ added 
 }
 
 type User @entity {
