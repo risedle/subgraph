@@ -46,17 +46,17 @@ type Transaction @entity {
   id: ID! # txn hash # ✅ added 
   blockNumber: BigInt! # ✅ added 
   timestamp: BigInt! # ✅ added 
-  mints: [Mint!] # 🔴 not implemented yet 👍 tinggal concat
-  redeems: [Burn!] # 🔴 not implemented yet 👍 tinggal concat
-  deposits: [Deposit!] # 🔴 not implemented yet 👍 tinggal concat
-  withdrawals: [Withdraw!] # 🔴 not implemented yet 👍 tinggal concat
-  rebalances: [Rebalance!] # 🔴 not implemented yet 👍 tinggal concat
+  mints: [Mint!] @derivedFrom(field: "transaction") # ✅ added
+  redeems: [Burn!] @derivedFrom(field: "transaction") # ✅ added
+  deposits: [Deposit!] @derivedFrom(field: "transaction") # ✅ added
+  withdrawals: [Withdraw!] @derivedFrom(field: "transaction") # ✅ added
+  rebalances: [Rebalance!] @derivedFrom(field: "transaction") # ✅ added
 }
 
 # RiseTokenMinted event
 type Mint @entity {
   # transaction hash
-  id: ID! # 🔴 need to concat with log index 👍 
+  id: ID! # ✅ added
   transaction: Transaction! # ✅ added 
   timestamp: BigInt!  # ✅ added 
   token: RiseToken! # ✅ added 
@@ -74,7 +74,7 @@ type Mint @entity {
 # RiseTokenBurned event
 type Burn @entity {
   # transaction hash
-  id: ID! # 🔴 need to concat with log index 👍 
+  id: ID! # ✅ added
   transaction: Transaction! # ✅ added 
   timestamp: BigInt! # ✅ added 
   token: RiseToken! # ✅ added 
@@ -90,7 +90,7 @@ type Burn @entity {
 # SupplyAdded event
 type Deposit @entity {
   # transaction hash
-  id: ID! # 🔴 need to concat with log index 👍 
+  id: ID! # ✅ added
   transaction: Transaction! # ✅ added 
   timestamp: BigInt! # ✅ added 
   tokenIn: Bytes # ✅ added 
@@ -106,7 +106,7 @@ type Deposit @entity {
 # SupplyRemoved event
 type Withdraw @entity {
   # transaction hash
-  id: ID! # 🔴 need to concat with log index 👍 
+  id: ID! # ✅ added
   transaction: Transaction! # ✅ added 
   timestamp: BigInt! # ✅ added 
   tokenOut: Bytes # ✅ added 
@@ -124,7 +124,7 @@ type Withdraw @entity {
 # RiseTokenRebalanced event
 type Rebalance @entity {
   # transaction hash
-  id: ID! # 🔴 need to concat with log index 👍 
+  id: ID! # ✅ added
   transaction: Transaction! # ✅ added 
   timestamp: BigInt! # ✅ added 
   token: RiseToken! # ✅ added 
