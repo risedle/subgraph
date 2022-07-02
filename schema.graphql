@@ -150,13 +150,13 @@ type RiseTokenHourData @entity {
 
   hourlyVolumeETH: BigDecimal!  # ✅ added 
   hourlyVolumeUSD: BigDecimal! # ✅ added 
-  hourlyFeeETH: BigDecimal! # 🔴 not implemented yet total fee sama kemarin gpp 👍
-  hourlyFeeUSD: BigDecimal!# 🔴 not implemented yet total fee sama kemarin gpp 👍 cuman harga usd dari ethpendingfees ethrise 👍
+  hourlyFeeETH: BigDecimal! # ✅ added 
+  hourlyFeeUSD: BigDecimal!  # ✅ added 
 
-  totalVolumeETH: BigDecimal! # 🔴 not implemented yet total eth 👍
-  totalAUMETH: BigDecimal! # 🔴 not implemented yet total eth 👍
-  totalVolumeUSD: BigDecimal!  # 🔴 not implemented yet total eth 👍
-  totalAUMUSD: BigDecimal! # 🔴 not implemented yet total eth 👍 cuman harga usd dari eth ethrise bukan yang supply available cash 👍
+  totalVolumeETH: BigDecimal! # ✅ added 
+  totalAUMETH: BigDecimal!  # ✅ added 
+  totalVolumeUSD: BigDecimal! # ✅ added 
+  totalAUMUSD: BigDecimal!  # ✅ added 
 
   txCount: BigInt! # ✅ added 
 }
@@ -169,10 +169,10 @@ type RiseTokenDayData @entity {
   dailyVolumeETH: BigDecimal! # ✅ added 
   dailyVolumeUSD: BigDecimal! # ✅ added 
 
-  totalVolumeETH: BigDecimal! # 🔴 not implemented yet total eth 👍
-  totalAUMETH: BigDecimal! # 🔴 not implemented yet total eth 👍
-  totalVolumeUSD: BigDecimal! # 🔴 not implemented yet total eth 👍
-  totalAUMUSD: BigDecimal! # 🔴 not implemented yet total eth 👍
+  totalVolumeETH: BigDecimal! # ✅ added 
+  totalAUMETH: BigDecimal!  # ✅ added 
+  totalVolumeUSD: BigDecimal! # ✅ added 
+  totalAUMUSD: BigDecimal!  # ✅ added 
 
   txCount: BigInt! # ✅ added 
 }
