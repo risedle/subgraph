@@ -16,6 +16,8 @@ type RiseToken @entity {
 
   # transactions mint + redeem
   txCount: BigInt! # ✅ added 
+
+  lastRebalance: Rebalance # 🔴 not implemented yet
 }
 
 type User @entity {
