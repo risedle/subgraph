@@ -260,7 +260,9 @@ export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
 	);
 	rebalance.transaction = transaction.id;
 	rebalance.timestamp = event.block.timestamp;
-	rebalance.token = "0x46D06cf8052eA6FdbF71736AF33eD23686eA1452"; // ETHRISE in Arbitrum
+	rebalance.token = Address.fromString(
+		"0x46D06cf8052eA6FdbF71736AF33eD23686eA1452"
+	).toHex(); // ETHRISE in Arbitrum
 
 	rebalance.executor = event.params.executor;
 	rebalance.previousLeverageRatio = convertEthToDecimal(
@@ -279,6 +281,13 @@ export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
 	rebalance.totalDebt = convertUSDCToDecimal(
 		vaultContract.getOutstandingDebt(Address.fromString(rebalance.token))
 	);
+
+	let riseToken = RiseToken.load(rebalance.token);
+	if (riseToken) {
+		riseToken.lastRebalance = rebalance.id;
+		riseToken.save();
+	}
+
 	rebalance.save();
 }
 
