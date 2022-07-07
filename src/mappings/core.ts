@@ -284,6 +284,14 @@ export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
 
 	let riseToken = RiseToken.load(rebalance.token);
 	if (riseToken) {
+		if (riseToken.lastRebalance) {
+			let prevRebalance = Rebalance.load(riseToken.lastRebalance + "");
+			if (prevRebalance) {
+				rebalance.previousTotalCollateral =
+					prevRebalance.totalCollateral;
+				rebalance.previousTotalDebt = prevRebalance.totalDebt;
+			}
+		}
 		riseToken.lastRebalance = rebalance.id;
 		riseToken.save();
 	}
