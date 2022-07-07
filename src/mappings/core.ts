@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
 	RiseTokenBurned,
 	RiseTokenCreated,
@@ -21,6 +21,7 @@ import {
 	Withdraw,
 } from "../types/schema";
 import {
+	ADDRESS_ZERO,
 	convertEthToDecimal,
 	convertUSDCToDecimal,
 	fetchTokenDecimals,
@@ -50,6 +51,7 @@ export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 		riseToken.tradeVolume = BigDecimal.fromString("0"); // Dummy
 		riseToken.tradeVolumeUSD = BigDecimal.fromString("0"); // Dummy
 		riseToken.txCount = BigInt.fromI32(0);
+		riseToken.lastRebalance = ADDRESS_ZERO;
 	}
 	riseToken.save();
 }
@@ -258,7 +260,9 @@ export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
 	);
 	rebalance.transaction = transaction.id;
 	rebalance.timestamp = event.block.timestamp;
-	rebalance.token = "0x46D06cf8052eA6FdbF71736AF33eD23686eA1452"; // ETHRISE in Arbitrum
+	rebalance.token = Address.fromString(
+		"0x46D06cf8052eA6FdbF71736AF33eD23686eA1452"
+	).toHex(); // ETHRISE in Arbitrum
 
 	rebalance.executor = event.params.executor;
 	rebalance.previousLeverageRatio = convertEthToDecimal(
@@ -267,6 +271,31 @@ export function handleRiseTokenRebalanced(event: RiseTokenRebalanced): void {
 	rebalance.leverageRatio = convertEthToDecimal(
 		vaultContract.getLeverageRatioInEther(tokenAddress)
 	);
+
+	let metadata = vaultContract.getMetadata(
+		Address.fromString(rebalance.token)
+	);
+	rebalance.totalCollateral = convertEthToDecimal(
+		metadata.totalCollateralPlusFee.minus(metadata.totalPendingFees)
+	);
+	rebalance.totalDebt = convertUSDCToDecimal(
+		vaultContract.getOutstandingDebt(Address.fromString(rebalance.token))
+	);
+
+	let riseToken = RiseToken.load(rebalance.token);
+	if (riseToken) {
+		if (riseToken.lastRebalance) {
+			let prevRebalance = Rebalance.load(riseToken.lastRebalance + "");
+			if (prevRebalance) {
+				rebalance.previousTotalCollateral =
+					prevRebalance.totalCollateral;
+				rebalance.previousTotalDebt = prevRebalance.totalDebt;
+			}
+		}
+		riseToken.lastRebalance = rebalance.id;
+		riseToken.save();
+	}
+
 	rebalance.save();
 }
 
