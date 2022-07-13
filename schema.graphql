@@ -17,7 +17,7 @@ type RiseToken @entity {
   # transactions mint + redeem
   txCount: BigInt! # ✅ added 
 
-  lastRebalance: Rebalance # 🔴 not implemented yet
+  lastRebalance: Rebalance # ✅ added 
 }
 
 type User @entity {
@@ -136,13 +136,10 @@ type Rebalance @entity {
   previousLeverageRatio: BigDecimal # ✅ added 
   leverageRatio: BigDecimal # ✅ added 
 
-  # 👍 sementara di skip dulu dipikir nanti 👍 entities nya tetep + bikin lastrebalance di rise token
-	previousTotalCollateral: BigDecimal # 🔴 not implemented yet 
-  totalCollateral: BigDecimal # 🔴 not implemented yet
-  previousTotalDebt: BigDecimal # 🔴 not implemented yet
-  totalDebt: BigDecimal # 🔴 not implemented yet
-  totalRepayment: BigDecimal # 🔴 not implemented yet
-  totalBorrow: BigDecimal # 🔴 not implemented yet
+	previousTotalCollateral: BigDecimal # ✅ added 
+  totalCollateral: BigDecimal # ✅ added 
+  previousTotalDebt: BigDecimal # ✅ added 
+  totalDebt: BigDecimal # ✅ added
 }
 
 # Data accumulated and condensed into day stats for all of RiseToken
@@ -152,8 +149,8 @@ type RiseTokenHourData @entity {
 
   hourlyVolumeETH: BigDecimal!  # ✅ added 
   hourlyVolumeUSD: BigDecimal! # ✅ added 
-  hourlyFeeETH: BigDecimal! # ✅ added 
-  hourlyFeeUSD: BigDecimal!  # ✅ added 
+  hourlyFeeETH: BigDecimal! # 🔴 change to not accumulative
+  hourlyFeeUSD: BigDecimal!  # 🔴 change to not accumulative
 
   totalVolumeETH: BigDecimal! # ✅ added 
   totalAUMETH: BigDecimal!  # ✅ added 
