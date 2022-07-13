@@ -257,9 +257,7 @@ export function handleSupplyAdded(event: SupplyAdded): void {
 	deposit.sender = user.id;
 
 	deposit.mintedAmount = convertEthToDecimal(event.params.mintedAmount);
-	deposit.amountUSD = deposit.mintedAmount.times(
-		convertUSDCToDecimal(oracleContract.getPrice())
-	);
+	deposit.amountUSD = convertUSDCToDecimal(event.params.amount);
 	deposit.save();
 }
 
@@ -301,9 +299,7 @@ export function handleSupplyRemoved(event: SupplyRemoved): void {
 	withdraw.exchangeRate = convertEthToDecimal(
 		event.params.ExchangeRateInEther
 	);
-	withdraw.tokenOutAmount = convertEthToDecimal(event.params.redeemedAmount);
-	withdraw.amountUSD = withdraw.tokenOutAmount.times(
-		convertUSDCToDecimal(oracleContract.getPrice())
-	);
+	withdraw.tokenOutAmount = convertUSDCToDecimal(event.params.redeemedAmount);
+	withdraw.amountUSD = withdraw.tokenOutAmount;
 	withdraw.save();
 }
