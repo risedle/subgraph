@@ -108,3 +108,26 @@ export const oracleAddress = Address.fromString(
 export const vaultContract = RiseTokenVault.bind(vaultAddress);
 
 export const oracleContract = Oracle.bind(oracleAddress);
+
+export function getDailyId(timestamp: BigInt): string {
+	const date = new Date(timestamp.toI64() * 1000);
+	const array = date.toISOString().split("-");
+	const id = array[0]
+		.concat("-")
+		.concat(array[1])
+		.concat(array[2]);
+	return id;
+}
+
+export function getMonthlyId(timestamp: BigInt): string {
+	const date = new Date(timestamp.toI64() * 1000);
+	const array = date.toISOString().split("-");
+	const id = array[0].concat("-").concat(array[1]);
+	return id;
+}
+
+export function getTimestampFromId(id: string): BigInt {
+	const date = Date.parse(id);
+	const timestamp: BigInt = BigInt.fromI64(date.getTime() / 1000);
+	return timestamp;
+}
