@@ -1,9 +1,12 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
+	DailyActiveUser,
+	MonthlyActiveUser,
 	RiseToken,
 	RiseTokenDayData,
 	RiseTokenHourData,
+	User,
 } from "../types/schema";
 import {
 	ZERO_BD,
@@ -13,6 +16,9 @@ import {
 	oracleContract,
 	ONE_BI,
 	vaultContract,
+	getDailyId,
+	getTimestampFromId,
+	getMonthlyId,
 } from "./helpers";
 
 export function riseTokenUpdate(
@@ -141,5 +147,49 @@ export function dailyVolumeUpdate(
 		riseTokenDayData.totalVolumeETH = riseToken.tradeVolume;
 		riseTokenDayData.totalVolumeUSD = riseToken.tradeVolumeUSD;
 		riseTokenDayData.save();
+	}
+}
+
+export function dailyActiveUsersUpdate(
+	event: ethereum.Event,
+	user: User
+): void {
+	let dayTimestamp = getDailyId(event.block.timestamp);
+	let dau = DailyActiveUser.load(dayTimestamp);
+	if (dau == null) {
+		dau = new DailyActiveUser(dayTimestamp);
+		dau.uniqueUsersCount = ONE_BI;
+		dau.timestamp = getTimestampFromId(dayTimestamp);
+		dau.users = [user.id];
+		dau.save();
+	} else {
+		if (getDailyId(user.lastTransactionTimestamp) != dayTimestamp) {
+			dau.uniqueUsersCount = dau.uniqueUsersCount.plus(ONE_BI);
+			dau.users = dau.users.concat([user.id]);
+			dau.timestamp = getTimestampFromId(dayTimestamp);
+			dau.save();
+		}
+	}
+}
+
+export function monthlyActiveUsersUpdate(
+	event: ethereum.Event,
+	user: User
+): void {
+	let monthTimestamp = getMonthlyId(event.block.timestamp);
+	let mau = MonthlyActiveUser.load(monthTimestamp);
+	if (mau == null) {
+		mau = new MonthlyActiveUser(monthTimestamp);
+		mau.uniqueUsersCount = ONE_BI;
+		mau.timestamp = getTimestampFromId(monthTimestamp);
+		mau.users = [user.id];
+		mau.save();
+	} else {
+		if (getMonthlyId(user.lastTransactionTimestamp) != monthTimestamp) {
+			mau.uniqueUsersCount = mau.uniqueUsersCount.plus(ONE_BI);
+			mau.users = mau.users.concat([user.id]);
+			mau.timestamp = getTimestampFromId(monthTimestamp);
+			mau.save();
+		}
 	}
 }
