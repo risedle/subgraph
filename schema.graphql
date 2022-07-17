@@ -145,7 +145,7 @@ type Rebalance @entity {
 # Data accumulated and condensed into day stats for all of RiseToken
 type RiseTokenHourData @entity {
   id: ID! # ✅ added 
-  date: Int! # ✅ added 
+  timestamp: BigInt! # ✅ added 
 
   hourlyVolumeETH: BigDecimal!  # ✅ added 
   hourlyVolumeUSD: BigDecimal! # ✅ added 
@@ -163,7 +163,7 @@ type RiseTokenHourData @entity {
 # Data accumulated and condensed into day stats for all of RiseToken
 type RiseTokenDayData @entity {
   id: ID! # ✅ added 
-  date: Int! # ✅ added 
+  timestamp: BigInt! # ✅ added 
 
   dailyVolumeETH: BigDecimal! # ✅ added 
   dailyVolumeUSD: BigDecimal! # ✅ added 

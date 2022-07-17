@@ -19,6 +19,8 @@ import {
 	getDailyId,
 	getTimestampFromId,
 	getMonthlyId,
+	getHourlyId,
+	getTimestampFromHourlyId,
 } from "./helpers";
 
 export function riseTokenUpdate(
@@ -48,13 +50,11 @@ export function hourlyVolumeUpdate(
 	amount: BigInt
 ): void {
 	// hourly update
-	const hourTimestamp = event.block.timestamp.div(BigInt.fromI32(3600));
-	let riseTokenHourData = RiseTokenHourData.load(hourTimestamp.toString());
+	const hourTimestamp = getHourlyId(event.block.timestamp);
+	let riseTokenHourData = RiseTokenHourData.load(hourTimestamp);
 	if (riseTokenHourData == null) {
-		riseTokenHourData = new RiseTokenHourData(hourTimestamp.toString());
-		riseTokenHourData.date = hourTimestamp
-			.times(BigInt.fromI32(3600))
-			.toI32();
+		riseTokenHourData = new RiseTokenHourData(hourTimestamp);
+		riseTokenHourData.timestamp = getTimestampFromHourlyId(hourTimestamp);
 		riseTokenHourData.hourlyVolumeETH = ZERO_BD;
 		riseTokenHourData.hourlyVolumeUSD = ZERO_BD;
 		riseTokenHourData.hourlyFeeETH = ZERO_BD;
@@ -109,13 +109,11 @@ export function dailyVolumeUpdate(
 	amount: BigInt
 ): void {
 	// daily update
-	const dayTimestamp = event.block.timestamp.div(BigInt.fromI32(86400));
-	let riseTokenDayData = RiseTokenDayData.load(dayTimestamp.toString());
+	const dayTimestamp = getDailyId(event.block.timestamp);
+	let riseTokenDayData = RiseTokenDayData.load(dayTimestamp);
 	if (riseTokenDayData == null) {
-		riseTokenDayData = new RiseTokenDayData(dayTimestamp.toString());
-		riseTokenDayData.date = dayTimestamp
-			.times(BigInt.fromI32(86400))
-			.toI32();
+		riseTokenDayData = new RiseTokenDayData(dayTimestamp);
+		riseTokenDayData.timestamp = getTimestampFromId(dayTimestamp);
 		riseTokenDayData.dailyVolumeETH = ZERO_BD;
 		riseTokenDayData.dailyVolumeUSD = ZERO_BD;
 

@@ -140,3 +140,16 @@ export function getTimestampFromId(id: string): BigInt {
 	const timestamp: BigInt = BigInt.fromI64(date.getTime() / 1000);
 	return timestamp;
 }
+
+// 2022-01-28T18:22:31.000Z
+export function getHourlyId(timestamp: BigInt): string {
+	const date = new Date(timestamp.toI64() * 1000);
+	const id = date.toISOString().split(":")[0]; // 2022-01-28T18
+	return id;
+}
+
+export function getTimestampFromHourlyId(id: string): BigInt {
+	const date = Date.parse(id.concat(":00:00.000Z"));
+	const timestamp: BigInt = BigInt.fromI64(date.getTime() / 1000);
+	return timestamp;
+}
