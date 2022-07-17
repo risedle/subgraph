@@ -82,12 +82,6 @@ export function hourlyVolumeUpdate(
 	let metadata = vaultContract.getMetadata(
 		Address.fromString(riseTokenAddress)
 	);
-	riseTokenHourData.hourlyFeeETH = convertEthToDecimal(
-		metadata.totalPendingFees
-	);
-	riseTokenHourData.hourlyFeeUSD = riseTokenHourData.hourlyFeeETH.times(
-		convertUSDCToDecimal(oracleContract.getPrice())
-	);
 	riseTokenHourData.totalAUMETH = convertEthToDecimal(
 		metadata.totalCollateralPlusFee
 	);
@@ -101,7 +95,30 @@ export function hourlyVolumeUpdate(
 	if (riseToken) {
 		riseTokenHourData.totalVolumeETH = riseToken.tradeVolume;
 		riseTokenHourData.totalVolumeUSD = riseToken.tradeVolumeUSD;
+		riseTokenHourData.totalPendingFees = convertEthToDecimal(
+			metadata.totalPendingFees
+		).plus(riseToken.totalFeeCollected);
+
+		let prevTotalPendingFees = ZERO_BD;
+		if (riseToken.lastHourData) {
+			let prevRiseTokenHourData = RiseTokenHourData.load(
+				riseToken.lastHourData + ""
+			);
+			if (prevRiseTokenHourData) {
+				prevTotalPendingFees = prevRiseTokenHourData.totalPendingFees;
+			}
+		}
+
+		riseTokenHourData.hourlyFeeETH = riseTokenHourData.totalPendingFees.minus(
+			prevTotalPendingFees
+		);
+		riseTokenHourData.hourlyFeeUSD = riseTokenHourData.hourlyFeeETH.times(
+			convertUSDCToDecimal(oracleContract.getPrice())
+		);
 		riseTokenHourData.save();
+		
+		riseToken.lastHourData = riseTokenHourData.id;
+		riseToken.save();
 	}
 }
 

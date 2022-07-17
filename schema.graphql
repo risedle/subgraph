@@ -18,6 +18,7 @@ type RiseToken @entity {
   txCount: BigInt! # ✅ added 
 
   lastRebalance: Rebalance # ✅ added 
+  lastHourData: RiseTokenHourData # ✅ added 
   totalFeeCollected: BigDecimal!
 }
 
