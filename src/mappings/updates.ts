@@ -31,8 +31,10 @@ export function riseTokenUpdate(
 		riseToken.tradeVolume = riseToken.tradeVolume.plus(
 			convertEthToDecimal(amount)
 		);
-		riseToken.tradeVolumeUSD = riseToken.tradeVolume.times(
-			convertUSDCToDecimal(oracleContract.getPrice())
+		riseToken.tradeVolumeUSD = riseToken.tradeVolumeUSD.plus(
+			convertEthToDecimal(amount).times(
+				convertUSDCToDecimal(oracleContract.getPrice())
+			)
 		);
 		riseToken.totalSupply = vaultContract.totalSupply();
 		riseToken.txCount = riseToken.txCount.plus(ONE_BI);
