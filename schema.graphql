@@ -149,6 +149,8 @@ type RiseTokenHourData @entity {
 
   hourlyVolumeETH: BigDecimal!  # ✅ added 
   hourlyVolumeUSD: BigDecimal! # ✅ added 
+  
+  totalPendingFees: BigDecimal!
   hourlyFeeETH: BigDecimal! # 🔴 change to not accumulative
   hourlyFeeUSD: BigDecimal!  # 🔴 change to not accumulative
 
