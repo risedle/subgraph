@@ -314,8 +314,10 @@ export function handleFeeCollected(event: FeeCollected): void {
 	);
 	if (riseToken) {
 		// check if function is "collectPendingFees(address)"
-		let selectorId = event.transaction.input.slice(0, 10).toString();
-		if (selectorId === "0x11ebf36d") {
+		let selectorId = Bytes.fromUint8Array(
+			event.transaction.input.slice(0, 4)
+		);
+		if (selectorId == Bytes.fromHexString("0x11ebf36d")) {
 			riseToken.totalFeeCollected = riseToken.totalFeeCollected.plus(
 				convertEthToDecimal(event.params.total)
 			);
