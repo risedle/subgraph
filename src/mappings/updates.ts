@@ -31,8 +31,10 @@ export function riseTokenUpdate(
 		riseToken.tradeVolume = riseToken.tradeVolume.plus(
 			convertEthToDecimal(amount)
 		);
-		riseToken.tradeVolumeUSD = riseToken.tradeVolume.times(
-			convertUSDCToDecimal(oracleContract.getPrice())
+		riseToken.tradeVolumeUSD = riseToken.tradeVolumeUSD.plus(
+			convertEthToDecimal(amount).times(
+				convertUSDCToDecimal(oracleContract.getPrice())
+			)
 		);
 		riseToken.totalSupply = vaultContract.totalSupply();
 		riseToken.txCount = riseToken.txCount.plus(ONE_BI);
@@ -69,8 +71,10 @@ export function hourlyVolumeUpdate(
 	riseTokenHourData.hourlyVolumeETH = riseTokenHourData.hourlyVolumeETH.plus(
 		convertEthToDecimal(amount)
 	);
-	riseTokenHourData.hourlyVolumeUSD = riseTokenHourData.hourlyVolumeETH.times(
-		convertUSDCToDecimal(oracleContract.getPrice())
+	riseTokenHourData.hourlyVolumeUSD = riseTokenHourData.hourlyVolumeUSD.plus(
+		convertEthToDecimal(amount).times(
+			convertUSDCToDecimal(oracleContract.getPrice())
+		)
 	);
 
 	let metadata = vaultContract.getMetadata(
@@ -126,8 +130,10 @@ export function dailyVolumeUpdate(
 	riseTokenDayData.dailyVolumeETH = riseTokenDayData.dailyVolumeETH.plus(
 		convertEthToDecimal(amount)
 	);
-	riseTokenDayData.dailyVolumeUSD = riseTokenDayData.dailyVolumeETH.times(
-		convertUSDCToDecimal(oracleContract.getPrice())
+	riseTokenDayData.dailyVolumeUSD = riseTokenDayData.dailyVolumeUSD.plus(
+		convertEthToDecimal(amount).times(
+			convertUSDCToDecimal(oracleContract.getPrice())
+		)
 	);
 
 	let metadata = vaultContract.getMetadata(
