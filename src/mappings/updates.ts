@@ -130,8 +130,10 @@ export function dailyVolumeUpdate(
 	riseTokenDayData.dailyVolumeETH = riseTokenDayData.dailyVolumeETH.plus(
 		convertEthToDecimal(amount)
 	);
-	riseTokenDayData.dailyVolumeUSD = riseTokenDayData.dailyVolumeETH.times(
-		convertUSDCToDecimal(oracleContract.getPrice())
+	riseTokenDayData.dailyVolumeUSD = riseTokenDayData.dailyVolumeUSD.plus(
+		convertEthToDecimal(amount).times(
+			convertUSDCToDecimal(oracleContract.getPrice())
+		)
 	);
 
 	let metadata = vaultContract.getMetadata(
