@@ -30,6 +30,7 @@ import {
 	oracleContract,
 	tokenAddress,
 	vaultContract,
+	ZERO_BD,
 	ZERO_BI,
 } from "./helpers";
 import {
@@ -52,6 +53,8 @@ export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 		riseToken.tradeVolumeUSD = BigDecimal.fromString("0"); // Dummy
 		riseToken.txCount = BigInt.fromI32(0);
 		riseToken.lastRebalance = ADDRESS_ZERO;
+
+		riseToken.totalFeeCollected = ZERO_BD;
 	}
 	riseToken.save();
 }

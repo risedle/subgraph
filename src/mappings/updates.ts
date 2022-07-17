@@ -60,6 +60,8 @@ export function hourlyVolumeUpdate(
 		riseTokenHourData.hourlyFeeETH = ZERO_BD;
 		riseTokenHourData.hourlyFeeUSD = ZERO_BD;
 
+		riseTokenHourData.totalPendingFees = ZERO_BD;
+
 		riseTokenHourData.totalVolumeETH = ZERO_BD;
 		riseTokenHourData.totalVolumeUSD = ZERO_BD;
 		riseTokenHourData.totalAUMETH = ZERO_BD;
