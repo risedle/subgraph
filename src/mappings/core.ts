@@ -1,6 +1,7 @@
 /* eslint-disable prefer-const */
 import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
+	FeeCollected,
 	RiseTokenBurned,
 	RiseTokenCreated,
 	RiseTokenMinted,
@@ -29,6 +30,7 @@ import {
 	oracleContract,
 	tokenAddress,
 	vaultContract,
+	ZERO_BD,
 	ZERO_BI,
 } from "./helpers";
 import {
@@ -51,6 +53,9 @@ export function handleRiseTokenCreated(event: RiseTokenCreated): void {
 		riseToken.tradeVolumeUSD = BigDecimal.fromString("0"); // Dummy
 		riseToken.txCount = BigInt.fromI32(0);
 		riseToken.lastRebalance = ADDRESS_ZERO;
+		riseToken.lastHourData = ADDRESS_ZERO;
+
+		riseToken.totalFeeCollected = ZERO_BD;
 	}
 	riseToken.save();
 }
@@ -302,4 +307,21 @@ export function handleSupplyRemoved(event: SupplyRemoved): void {
 	withdraw.tokenOutAmount = convertUSDCToDecimal(event.params.redeemedAmount);
 	withdraw.amountUSD = withdraw.tokenOutAmount;
 	withdraw.save();
+}
+
+export function handleFeeCollected(event: FeeCollected): void {
+	let riseToken = RiseToken.load(
+		Address.fromString("0x46D06cf8052eA6FdbF71736AF33eD23686eA1452").toHex()
+	);
+	if (riseToken) {
+		// check if function is "collectPendingFees(address)"
+		let selectorId = Bytes.fromUint8Array(
+			event.transaction.input.slice(0, 4)
+		);
+		if (selectorId == Bytes.fromHexString("0x11ebf36d")) {
+			riseToken.totalFeeCollected = riseToken.totalFeeCollected.plus(
+				convertEthToDecimal(event.params.total)
+			);
+		}
+	}
 }

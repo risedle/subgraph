@@ -19,6 +19,8 @@ import {
 	getDailyId,
 	getTimestampFromId,
 	getMonthlyId,
+	getHourlyId,
+	getTimestampFromHourlyId,
 } from "./helpers";
 
 export function riseTokenUpdate(
@@ -48,17 +50,17 @@ export function hourlyVolumeUpdate(
 	amount: BigInt
 ): void {
 	// hourly update
-	const hourTimestamp = event.block.timestamp.div(BigInt.fromI32(3600));
-	let riseTokenHourData = RiseTokenHourData.load(hourTimestamp.toString());
+	const hourTimestamp = getHourlyId(event.block.timestamp);
+	let riseTokenHourData = RiseTokenHourData.load(hourTimestamp);
 	if (riseTokenHourData == null) {
-		riseTokenHourData = new RiseTokenHourData(hourTimestamp.toString());
-		riseTokenHourData.date = hourTimestamp
-			.times(BigInt.fromI32(3600))
-			.toI32();
+		riseTokenHourData = new RiseTokenHourData(hourTimestamp);
+		riseTokenHourData.timestamp = getTimestampFromHourlyId(hourTimestamp);
 		riseTokenHourData.hourlyVolumeETH = ZERO_BD;
 		riseTokenHourData.hourlyVolumeUSD = ZERO_BD;
 		riseTokenHourData.hourlyFeeETH = ZERO_BD;
 		riseTokenHourData.hourlyFeeUSD = ZERO_BD;
+
+		riseTokenHourData.totalPendingFees = ZERO_BD;
 
 		riseTokenHourData.totalVolumeETH = ZERO_BD;
 		riseTokenHourData.totalVolumeUSD = ZERO_BD;
@@ -80,12 +82,6 @@ export function hourlyVolumeUpdate(
 	let metadata = vaultContract.getMetadata(
 		Address.fromString(riseTokenAddress)
 	);
-	riseTokenHourData.hourlyFeeETH = convertEthToDecimal(
-		metadata.totalPendingFees
-	);
-	riseTokenHourData.hourlyFeeUSD = riseTokenHourData.hourlyFeeETH.times(
-		convertUSDCToDecimal(oracleContract.getPrice())
-	);
 	riseTokenHourData.totalAUMETH = convertEthToDecimal(
 		metadata.totalCollateralPlusFee
 	);
@@ -99,7 +95,30 @@ export function hourlyVolumeUpdate(
 	if (riseToken) {
 		riseTokenHourData.totalVolumeETH = riseToken.tradeVolume;
 		riseTokenHourData.totalVolumeUSD = riseToken.tradeVolumeUSD;
+		riseTokenHourData.totalPendingFees = convertEthToDecimal(
+			metadata.totalPendingFees
+		).plus(riseToken.totalFeeCollected);
+
+		let prevTotalPendingFees = ZERO_BD;
+		if (riseToken.lastHourData) {
+			let prevRiseTokenHourData = RiseTokenHourData.load(
+				riseToken.lastHourData + ""
+			);
+			if (prevRiseTokenHourData) {
+				prevTotalPendingFees = prevRiseTokenHourData.totalPendingFees;
+			}
+		}
+
+		riseTokenHourData.hourlyFeeETH = riseTokenHourData.totalPendingFees.minus(
+			prevTotalPendingFees
+		);
+		riseTokenHourData.hourlyFeeUSD = riseTokenHourData.hourlyFeeETH.times(
+			convertUSDCToDecimal(oracleContract.getPrice())
+		);
 		riseTokenHourData.save();
+		
+		riseToken.lastHourData = riseTokenHourData.id;
+		riseToken.save();
 	}
 }
 
@@ -109,13 +128,11 @@ export function dailyVolumeUpdate(
 	amount: BigInt
 ): void {
 	// daily update
-	const dayTimestamp = event.block.timestamp.div(BigInt.fromI32(86400));
-	let riseTokenDayData = RiseTokenDayData.load(dayTimestamp.toString());
+	const dayTimestamp = getDailyId(event.block.timestamp);
+	let riseTokenDayData = RiseTokenDayData.load(dayTimestamp);
 	if (riseTokenDayData == null) {
-		riseTokenDayData = new RiseTokenDayData(dayTimestamp.toString());
-		riseTokenDayData.date = dayTimestamp
-			.times(BigInt.fromI32(86400))
-			.toI32();
+		riseTokenDayData = new RiseTokenDayData(dayTimestamp);
+		riseTokenDayData.timestamp = getTimestampFromId(dayTimestamp);
 		riseTokenDayData.dailyVolumeETH = ZERO_BD;
 		riseTokenDayData.dailyVolumeUSD = ZERO_BD;
 
