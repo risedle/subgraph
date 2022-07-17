@@ -18,6 +18,7 @@ type RiseToken @entity {
   txCount: BigInt! # ✅ added 
 
   lastRebalance: Rebalance # ✅ added 
+  totalFeeCollected: BigDecimal!
 }
 
 type User @entity {
@@ -149,7 +150,7 @@ type RiseTokenHourData @entity {
 
   hourlyVolumeETH: BigDecimal!  # ✅ added 
   hourlyVolumeUSD: BigDecimal! # ✅ added 
-  
+
   totalPendingFees: BigDecimal!
   hourlyFeeETH: BigDecimal! # 🔴 change to not accumulative
   hourlyFeeUSD: BigDecimal!  # 🔴 change to not accumulative

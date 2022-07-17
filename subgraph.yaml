@@ -47,3 +47,5 @@ dataSources:
           handler: handleSupplyAdded
         - event: SupplyRemoved(indexed address,uint256,uint256,uint256)
           handler: handleSupplyRemoved
+        - event: FeeCollected(address,uint256,address)
+          handler: handleFeeCollected

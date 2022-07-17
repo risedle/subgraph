@@ -1,6 +1,7 @@
 /* eslint-disable prefer-const */
 import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
+	FeeCollected,
 	RiseTokenBurned,
 	RiseTokenCreated,
 	RiseTokenMinted,
@@ -302,4 +303,19 @@ export function handleSupplyRemoved(event: SupplyRemoved): void {
 	withdraw.tokenOutAmount = convertUSDCToDecimal(event.params.redeemedAmount);
 	withdraw.amountUSD = withdraw.tokenOutAmount;
 	withdraw.save();
+}
+
+export function handleFeeCollected(event: FeeCollected): void {
+	let riseToken = RiseToken.load(
+		Address.fromString("0x46D06cf8052eA6FdbF71736AF33eD23686eA1452").toHex()
+	);
+	if (riseToken) {
+		// check if function is "collectPendingFees(address)"
+		let selectorId = event.transaction.input.slice(0, 10).toString();
+		if (selectorId === "0x11ebf36d") {
+			riseToken.totalFeeCollected = riseToken.totalFeeCollected.plus(
+				convertEthToDecimal(event.params.total)
+			);
+		}
+	}
 }
