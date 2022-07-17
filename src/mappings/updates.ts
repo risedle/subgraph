@@ -71,8 +71,10 @@ export function hourlyVolumeUpdate(
 	riseTokenHourData.hourlyVolumeETH = riseTokenHourData.hourlyVolumeETH.plus(
 		convertEthToDecimal(amount)
 	);
-	riseTokenHourData.hourlyVolumeUSD = riseTokenHourData.hourlyVolumeETH.times(
-		convertUSDCToDecimal(oracleContract.getPrice())
+	riseTokenHourData.hourlyVolumeUSD = riseTokenHourData.hourlyVolumeUSD.plus(
+		convertEthToDecimal(amount).times(
+			convertUSDCToDecimal(oracleContract.getPrice())
+		)
 	);
 
 	let metadata = vaultContract.getMetadata(
